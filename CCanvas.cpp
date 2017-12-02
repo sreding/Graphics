@@ -260,7 +260,7 @@ void CCanvas::paintGL()
      * is shown, check the scale of the model, your camera could be for example inside of it.
      */
     //glScalef(0.02f, 0.02f, 0.02f);
-    //modelTrain2.draw();
+//    modelTrain2.draw();
     // Remove the last transformation matrix from the stack - you have drawn your last
     // object with a new transformation and now you go back to the previous one
     glPopMatrix();
