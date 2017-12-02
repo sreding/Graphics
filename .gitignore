@@ -1,0 +1,5 @@
+*.o
+CCanvas.h
+GLRender.pro.user*
+Makefile
+moc_*

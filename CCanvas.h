@@ -23,7 +23,6 @@ using namespace std;
 class CCanvas : public QGLWidget
 {
   Q_OBJECT
-
 public:
     explicit CCanvas(QWidget *parent = 0) : QGLWidget(parent),
         textureTrain("/Users/simonreding/Desktop/CG/Graphics/train.jpg"),
