@@ -26,13 +26,13 @@ class CCanvas : public QGLWidget
 
 public:
     explicit CCanvas(QWidget *parent = 0) : QGLWidget(parent),
-        textureTrain("/Users/alexandercamenzind/Desktop/group_homework/Graphics/objects/train.jpg")
+        textureTrain("/Users/simonreding/Desktop/CG/Graphics/objects/train.jpg")
     {
         QTimer *timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(updateGL()));
         timer->start(10);
     }
-    const char * pathToFile = "/Users/alexandercamenzind/Desktop/group_homework/Graphics/objects/plane.obj";
+    const char * pathToFile = "/Users/simonreding/Desktop/CG/Graphics/objects/plane.obj";
 
 protected:
     void initializeGL();
