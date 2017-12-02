@@ -78,7 +78,7 @@ bool loadOBJ(
 
                 }
                 verticiesOffset += temp_vertices.size();
-                std::cout<<verticiesOffset <<"\n";
+//                std::cout<<verticiesOffset <<"\n";
                 uvOffset+=temp_uvs.size();
                 nOffset += temp_normals.size();
 
@@ -87,7 +87,7 @@ bool loadOBJ(
                 vecPoint3dToFloat(out_normals, currentObj.fnormals);
                 currentObj.init();
                 objects.add(currentObj);
-                printf("here %d",currentObj.fvertices.size());
+//                printf("here %d",currentObj.fvertices.size());
             }
             currentObj=ObjModel();
             out_vertices=std::vector<Point3d>();
@@ -105,7 +105,7 @@ bool loadOBJ(
             //reset
             char stupidBuffer[1000];
             fgets(stupidBuffer, 1000, file);
-            printf("%s",stupidBuffer);
+//            printf("%s",stupidBuffer);
         }
         else if ( strcmp( lineHeader, "v" ) == 0 ){
                         float vx, vy, vz;
