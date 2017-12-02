@@ -2,8 +2,10 @@
 #include "Base.h"
 #include "Sphere.h"
 
+#include "ObjectGroup.h"
+#include "objloader.hpp"
 using namespace std;
-
+static ObjectGroup grp("");
 //-----------------------------------------------------------------------------
 
 void CCanvas::initializeGL()
@@ -39,13 +41,15 @@ void CCanvas::initializeGL()
     glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmb);
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiff);
 
+    loadOBJ(pathToFile,grp);
+    cout<<grp.objects[5].fvertices.size();
+
     /*
      * Before you can use the texture you need to initialize it by calling the setTexture() method.
      * Before you can use OBJ/PLY model, you need to initialize it by calling init() method.
      */
     textureTrain.setTexture();
-    modelTrain.init();
-    modelTrain2.init();
+
 }
 
 //-----------------------------------------------------------------------------
@@ -174,12 +178,16 @@ void CCanvas::resizeGL(int width, int height)
 //-----------------------------------------------------------------------------
 
 void CCanvas::setView(View _view) {
+    static float x = 0.0;
+    x+=0.1;
     switch(_view) {
     case Perspective:
         glTranslatef(1.0, -2.5, -10.0);
-        glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
+        glRotatef(x, 0.0f, 1.0f, 0.0f);
         break;
     case Cockpit:
+        glTranslatef(1.0, -2.5, -10.0);
+        glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
         // Maybe you want to have an option to view the scene from the train cockpit, up to you
         break;
     }
@@ -197,14 +205,14 @@ void CCanvas::paintGL()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Setup the current view
-    setView(View::Perspective);
+    setView(View::Cockpit);
 
     // You can always change the light position here if you want
     GLfloat lightpos[] = {0.0f, 0.0f, 10.0f, 0.0f};
     glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
     /**** Axes in the global coordinate system ****/
-    /*
+
     glDisable(GL_LIGHTING);
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINES);
@@ -222,7 +230,14 @@ void CCanvas::paintGL()
         glVertex3f(0.0f, 0.0f, 6.0f);
     glEnd();
     glEnable(GL_LIGHTING);
-    */
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Setup the current view
+    setView(View::Perspective);
+
     /**** Setup and draw your objects ****/
 
     // You can freely enable/disable some of the lights in the scene as you wish
@@ -251,15 +266,21 @@ void CCanvas::paintGL()
      *  GLfloat matrix[16];
      *  glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
     */
+//    for(int i =0; i<grp.objects.size(); i++){
+//        grp.objects[i].draw();
+//    }
 
+    grp.objects[1].draw();
+    grp.objects[2].draw();
     // Look at the ObjModel class to see how the drawing is done
-    modelTrain.draw();
+//    modelTrain.draw();
     // Look at the PlyModel class to see how the drawing is done
     /*
      * The models you load can have different scales. If you are drawing a proper model but nothing
      * is shown, check the scale of the model, your camera could be for example inside of it.
      */
     //glScalef(0.02f, 0.02f, 0.02f);
+
 //    modelTrain2.draw();
     // Remove the last transformation matrix from the stack - you have drawn your last
     // object with a new transformation and now you go back to the previous one

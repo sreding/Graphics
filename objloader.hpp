@@ -6,12 +6,12 @@
 #include <vector>
 
 #include "gl.h"
+#include "ObjectGroup.h"
 
 bool loadOBJ(
-	const char * path, 
-    std::vector<Point3d> & out_vertices,
-    std::vector<Point2d> & out_uvs,
-    std::vector<Point3d> & out_normals
+    const char * path,
+    ObjectGroup& grp
+
 );
 
 void vecPoint2dToFloat(std::vector<Point2d> &_vec, std::vector<GLfloat> &_out);
