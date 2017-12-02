@@ -8,14 +8,15 @@
 class ObjModel
 {
 public:
-    ObjModel(const std::string &_path);
+    ObjModel();
     void init();
     void draw();
-
-private:
     std::vector<GLfloat> fvertices;
     std::vector<GLfloat> fuvs;
-    std::vector<GLfloat> fnormals; // Won't be used at the moment
+    std::vector<GLfloat> fnormals;
+
+private:
+     // Won't be used at the moment
 
     GLuint vertexBuffer;
     GLuint uvBuffer;

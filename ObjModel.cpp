@@ -4,14 +4,14 @@
 
 #include "objloader.hpp"
 
-ObjModel::ObjModel(const std::string &_path) {
-    std::vector<Point3d> vertices;
-    std::vector<Point2d> uvs;
-    std::vector<Point3d> normals;
-    bool res = loadOBJ(_path.c_str(), vertices, uvs, normals);
-    vecPoint3dToFloat(vertices, fvertices);
-    vecPoint2dToFloat(uvs, fuvs);
-    vecPoint3dToFloat(normals, fnormals);
+ObjModel::ObjModel() {
+//    std::vector<Point3d> vertices;
+//    std::vector<Point2d> uvs;
+//    std::vector<Point3d> normals;
+//    bool res = loadOBJ(_path.c_str(), vertices, uvs, normals);
+//    vecPoint3dToFloat(vertices, fvertices);
+//    vecPoint2dToFloat(uvs, fuvs);
+//    vecPoint3dToFloat(normals, fnormals);
 }
 
 void ObjModel::init() {

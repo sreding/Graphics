@@ -5,6 +5,8 @@
 #include <cmath>
 
 #include "objloader.hpp"
+#include "ObjectGroup.h"
+#include "ObjModel.h"
 
 // Very, VERY simple OBJ loader.
 // Here is a short list of features a real function would provide : 
@@ -17,17 +19,22 @@
 // - Loading from memory, stream, etc
 
 bool loadOBJ(
-	const char * path, 
-        std::vector<Point3d> & out_vertices,
-        std::vector<Point2d> & out_uvs,
-        std::vector<Point3d> & out_normals
+    const char * path,
+    ObjectGroup& objects
+
 ){
-	printf("Loading OBJ file %s...\n", path);
+    printf("Loading OBJ file %s...\n", path);
 
 	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
         std::vector<Point3d> temp_vertices;
         std::vector<Point2d> temp_uvs;
         std::vector<Point3d> temp_normals;
+        std::vector<Point3d> out_vertices;
+        std::vector<Point2d> out_uvs;
+        std::vector<Point3d> out_normals;
+
+
+    ObjModel currentObj;
 
 
 	FILE * file = fopen(path, "r");
@@ -36,7 +43,10 @@ bool loadOBJ(
 		getchar();
 		return false;
 	}
-
+    bool firstObject = true;
+    int verticiesOffset = 0;
+    int uvOffset=0;
+    int nOffset=0;
 	while( 1 ){
 
 		char lineHeader[128];
@@ -46,8 +56,58 @@ bool loadOBJ(
 			break; // EOF = End Of File. Quit the loop.
 
 		// else : parse lineHeader
-		
-		if ( strcmp( lineHeader, "v" ) == 0 ){
+        if(strcmp( lineHeader, "o" ) == 0){
+            //create new object
+            if(!firstObject){
+                for( unsigned int i=0; i<vertexIndices.size(); i++ ){
+
+                    // Get the indices of its attributes
+                    unsigned int vertexIndex = vertexIndices[i];
+                    unsigned int uvIndex = uvIndices[i];
+                    unsigned int normalIndex = normalIndices[i];
+
+                    // Get the attributes thanks to the index
+                            Point3d vertex = temp_vertices[ vertexIndex-1 ];
+                            Point2d uv = temp_uvs[ uvIndex-1 ];
+                            Point3d normal = temp_normals[ normalIndex-1 ];
+
+                    // Put the attributes in buffers
+                    out_vertices.push_back(vertex);
+                    out_uvs     .push_back(uv);
+                    out_normals .push_back(normal);
+
+                }
+                verticiesOffset += temp_vertices.size();
+//                std::cout<<verticiesOffset <<"\n";
+                uvOffset+=temp_uvs.size();
+                nOffset += temp_normals.size();
+
+                vecPoint3dToFloat(out_vertices, currentObj.fvertices);
+                vecPoint2dToFloat(out_uvs, currentObj.fuvs);
+                vecPoint3dToFloat(out_normals, currentObj.fnormals);
+                currentObj.init();
+                objects.add(currentObj);
+//                printf("here %d",currentObj.fvertices.size());
+            }
+            currentObj=ObjModel();
+            out_vertices=std::vector<Point3d>();
+            out_uvs = std::vector<Point2d>();
+            out_normals = std::vector<Point3d>();
+            temp_vertices = std::vector<Point3d>();
+            temp_uvs = std::vector<Point2d>();
+            temp_normals = std::vector<Point3d>();
+            vertexIndices =std::vector<unsigned int>();
+            uvIndices = std::vector<unsigned int>();
+            normalIndices= std::vector<unsigned int>();
+
+
+            firstObject=false;
+            //reset
+            char stupidBuffer[1000];
+            fgets(stupidBuffer, 1000, file);
+//            printf("%s",stupidBuffer);
+        }
+        else if ( strcmp( lineHeader, "v" ) == 0 ){
                         float vx, vy, vz;
                         fscanf(file, "%f %f %f\n", &vx, &vy, &vz );
                         Point3d vertex(vx, vy, vz);
@@ -72,16 +132,19 @@ bool loadOBJ(
                                 fclose(file);
 				return false;
 			}
-			vertexIndices.push_back(vertexIndex[0]);
-			vertexIndices.push_back(vertexIndex[1]);
-			vertexIndices.push_back(vertexIndex[2]);
-			uvIndices    .push_back(uvIndex[0]);
-			uvIndices    .push_back(uvIndex[1]);
-			uvIndices    .push_back(uvIndex[2]);
-			normalIndices.push_back(normalIndex[0]);
-			normalIndices.push_back(normalIndex[1]);
-			normalIndices.push_back(normalIndex[2]);
-		}else{
+//                std::cout<<vertexIndex[0]-verticiesOffset<<" ";
+
+            vertexIndices.push_back(vertexIndex[0]-verticiesOffset);
+            vertexIndices.push_back(vertexIndex[1]-verticiesOffset);
+            vertexIndices.push_back(vertexIndex[2]-verticiesOffset);
+            uvIndices    .push_back(uvIndex[0]-uvOffset);
+            uvIndices    .push_back(uvIndex[1]-uvOffset);
+            uvIndices    .push_back(uvIndex[2]-uvOffset);
+            normalIndices.push_back(normalIndex[0] - nOffset);
+            normalIndices.push_back(normalIndex[1] - nOffset);
+            normalIndices.push_back(normalIndex[2] - nOffset);
+        }
+        else{
 			// Probably a comment, eat up the rest of the line
 			char stupidBuffer[1000];
                         fgets(stupidBuffer, 1000, file);
@@ -90,24 +153,29 @@ bool loadOBJ(
 	}
 
 	// For each vertex of each triangle
-	for( unsigned int i=0; i<vertexIndices.size(); i++ ){
+    for( unsigned int i=0; i<vertexIndices.size(); i++ ){
 
-		// Get the indices of its attributes
-		unsigned int vertexIndex = vertexIndices[i];
-		unsigned int uvIndex = uvIndices[i];
-		unsigned int normalIndex = normalIndices[i];
+        // Get the indices of its attributes
+        unsigned int vertexIndex = vertexIndices[i];
+        unsigned int uvIndex = uvIndices[i];
+        unsigned int normalIndex = normalIndices[i];
 		
-		// Get the attributes thanks to the index
+        // Get the attributes thanks to the index
                 Point3d vertex = temp_vertices[ vertexIndex-1 ];
                 Point2d uv = temp_uvs[ uvIndex-1 ];
                 Point3d normal = temp_normals[ normalIndex-1 ];
 		
-		// Put the attributes in buffers
-		out_vertices.push_back(vertex);
-		out_uvs     .push_back(uv);
-		out_normals .push_back(normal);
+        // Put the attributes in buffers
+        out_vertices.push_back(vertex);
+        out_uvs     .push_back(uv);
+        out_normals .push_back(normal);
 	
-	}
+    }
+    vecPoint3dToFloat(out_vertices, currentObj.fvertices);
+    vecPoint2dToFloat(out_uvs, currentObj.fuvs);
+    vecPoint3dToFloat(out_normals, currentObj.fnormals);
+    currentObj.init();
+    objects.add(currentObj);
 	fclose(file);
 	return true;
 }
