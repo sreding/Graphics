@@ -5,7 +5,8 @@
 #include "ObjectGroup.h"
 #include "objloader.hpp"
 using namespace std;
-static ObjectGroup grp("");
+static ObjectGroup tree("");
+static ObjectGroup plane("");
 //-----------------------------------------------------------------------------
 
 void CCanvas::initializeGL()
@@ -41,8 +42,8 @@ void CCanvas::initializeGL()
     glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmb);
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiff);
 
-    loadOBJ(pathToFile,grp);
-    cout<<grp.objects[5].fvertices.size();
+    loadOBJ(pathToFile[0],tree);
+    loadOBJ(pathToFile[1],plane);
 
     /*
      * Before you can use the texture you need to initialize it by calling the setTexture() method.
@@ -238,16 +239,16 @@ void CCanvas::paintGL()
     glDisable(GL_LIGHTING);
 
     // Setup the current view
-    setView(View::Cockpit);
+//    setView(View::Cockpit);
 
-    glColor3f(0.0f, 0.5f, 0.0f);
-        glNormal3d(0.0000, 1.0000, 0.0000);
-        glBegin(GL_TRIANGLE_STRIP);
-        glVertex3f(-108.231724, 0.358408, 109.108315);
-        glVertex3f(100.418297, 0.358408, 109.108315);
-        glVertex3f(-108.231724, 0.358408, -109.541705);
-        glVertex3f(100.418297, 0.358408, -109.541705);
-        glEnd();
+//    glColor3f(0.0f, 0.5f, 0.0f);
+//        glNormal3d(0.0000, 1.0000, 0.0000);
+//        glBegin(GL_TRIANGLE_STRIP);
+//        glVertex3f(-108.231724, 0.358408, 109.108315);
+//        glVertex3f(100.418297, 0.358408, 109.108315);
+//        glVertex3f(-108.231724, 0.358408, -109.541705);
+//        glVertex3f(100.418297, 0.358408, -109.541705);
+//        glEnd();
 
      glLoadIdentity();
      setView(View::Perspective);
@@ -280,8 +281,14 @@ void CCanvas::paintGL()
      *  GLfloat matrix[16];
      *  glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
     */
-    for(int i =0; i<grp.objects.size(); i++){
-        grp.objects[i].draw();
+
+
+    for(int i =0; i<plane.objects.size(); i++){
+        plane.objects[i].draw();
+    }
+     glTranslatef(0,-20,-10);
+    for(int i =0; i<tree.objects.size(); i++){
+        tree.objects[i].draw();
     }
 
 //    grp.objects[1].draw();
