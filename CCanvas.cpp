@@ -19,9 +19,9 @@ void CCanvas::initializeGL()
     glShadeModel(GL_SMOOTH);
 
     // One light source
-    glEnable(GL_LIGHTING);
+//    glEnable(GL_LIGHTING);
 
-    glEnable(GL_LIGHT0);
+//    glEnable(GL_LIGHT0);
     /*
      * The position is transformed by the modelview matrix when glLightfv is called (just as if it were
      * a point), and it is stored in eye coordinates. If the w component of the position is 0.0,
@@ -181,15 +181,23 @@ void CCanvas::resizeGL(int width, int height)
 void CCanvas::setView(View _view) {
     static float x = 0.0;
     x+=0.1;
+    int r = 10;
     switch(_view) {
         case Perspective:
-            glTranslatef(1.0, -2.5, -10.0);
-            glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
+            glTranslatef(1.0, -2.5 + x/2, -10.0 - x); // take off
+//            glTranslatef(1.0, -2.5, -10.0); // put in the axis
+//            glRotatef(x, 0.0f, x, 0.0f); //rotate on itself
+            if(x/2 < 30){
+                glRotatef(x/2, 0.0f, 0.0f, 0.0f); //take off
+            }else{
+                glRotatef(0.0f, 0.0f, 0.0f, 0.0f); // to modify (stabilize)
+            }
+
             break;
-        case Cockpit:
+        case Axis:
             // Maybe you want to have an option to view the scene from the train cockpit, up to you
-            glTranslatef(1.0, -5.5, -10.0);
-            glRotatef(45.0f - x, 0.0f, 1.0f, 0.0f);
+            glTranslatef(1.0, -2.5, -10.0);
+//            glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
             break;
         }
 
@@ -203,18 +211,20 @@ void CCanvas::paintGL()
     // set model-view matrix
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    lookAt(0,0,0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
+
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPushMatrix();
 
-    // Setup the current view
-    setView(View::Perspective);
 
-    // You can always change the light position here if you want
-    GLfloat lightpos[] = {0.0f, 0.0f, 10.0f, 0.0f};
-    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+//    ##################LIGHT##################
+//    GLfloat lightpos[] = {0.0f, 0.0f, 10.0f, 0.0f};
+//    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-    /**** Axes in the global coordinate system ****/
 
+//    ##################AXES##################
+ setView(View::Axis);
     glDisable(GL_LIGHTING);
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINES);
@@ -234,11 +244,11 @@ void CCanvas::paintGL()
     glEnable(GL_LIGHTING);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_LIGHTING);
+//    glPopMatrix();
 
-    // Setup the current view
+//    ##################FLAT SURFACE (GREEN PLANE)##################
 //    setView(View::Cockpit);
 
 //    glColor3f(0.0f, 0.5f, 0.0f);
@@ -250,15 +260,10 @@ void CCanvas::paintGL()
 //        glVertex3f(100.418297, 0.358408, -109.541705);
 //        glEnd();
 
-     glLoadIdentity();
      setView(View::Perspective);
      glColor3f(1.0f, 1.0f, 1.0f);
-    /**** Setup and draw your objects ****/
 
-    // You can freely enable/disable some of the lights in the scene as you wish
-    //glEnable(GL_LIGHT0);
-    //glDisable(GL_LIGHT1);
-    // Before drawing an object, you can set its material properties
+    // ##################MATERIALS##################
     /*
     glColor3f(0.5f, 0.5f, 0.5f);
     GLfloat amb[]  = {0.1f, 0.1f, 0.1f};
@@ -271,38 +276,28 @@ void CCanvas::paintGL()
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &shin);
     */
 
+    // ##################AIRPLANE##################
     // Drawing the object with texture
     textureTrain.bind();
-    // You can stack new transformation matrix if you don't want
-    // the previous transformations to apply on this object
-    glPushMatrix();
     /*
      * Obtaining the values of the current modelview matrix
      *  GLfloat matrix[16];
      *  glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
     */
 
-
     for(int i =0; i<plane.objects.size(); i++){
         plane.objects[i].draw();
     }
-     glTranslatef(0,-20,-10);
-    for(int i =0; i<tree.objects.size(); i++){
-        tree.objects[i].draw();
-    }
+//    for(int i =0; i<tree.objects.size(); i++){
+//        tree.objects[i].draw();
+//    }
 
-//    grp.objects[1].draw();
-//    grp.objects[2].draw();
-    // Look at the ObjModel class to see how the drawing is done
-//    modelTrain.draw();
-    // Look at the PlyModel class to see how the drawing is done
     /*
      * The models you load can have different scales. If you are drawing a proper model but nothing
      * is shown, check the scale of the model, your camera could be for example inside of it.
      */
     //glScalef(0.02f, 0.02f, 0.02f);
 
-//    modelTrain2.draw();
     // Remove the last transformation matrix from the stack - you have drawn your last
     // object with a new transformation and now you go back to the previous one
     glPopMatrix();

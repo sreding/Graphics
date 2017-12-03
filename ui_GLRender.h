@@ -19,7 +19,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QWidget>
-#include "ccanvas.h"
+#include "CCanvas.h"
 
 QT_BEGIN_NAMESPACE
 

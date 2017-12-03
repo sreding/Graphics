@@ -71,7 +71,7 @@
   <customwidget>
    <class>CCanvas</class>
    <extends>QWidget</extends>
-   <header>ccanvas.h</header>
+   <header>CCanvas.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
