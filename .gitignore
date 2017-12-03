@@ -3,3 +3,4 @@ GLRender.pro.user*
 Makefile
 moc_*
 path.txt
+*.app

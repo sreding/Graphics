@@ -180,17 +180,24 @@ void CCanvas::resizeGL(int width, int height)
 
 void CCanvas::setView(View _view) {
     static float x = 0.0;
+    static int stabilize = 0;
+    static bool stab = false;
+
     x+=0.1;
     int r = 10;
     switch(_view) {
         case Perspective:
-            glTranslatef(1.0, -2.5 + x/2, -10.0 - x); // take off
+            glTranslatef(1.0, 1.5 + x/2, -8.0 - x); // take off
 //            glTranslatef(1.0, -2.5, -10.0); // put in the axis
 //            glRotatef(x, 0.0f, x, 0.0f); //rotate on itself
-            if(x/2 < 30){
+            if(x/2 < 30 && stabilize == 0){
                 glRotatef(x/2, 0.0f, 0.0f, 0.0f); //take off
             }else{
-                glRotatef(0.0f, 0.0f, 0.0f, 0.0f); // to modify (stabilize)
+                if(!stab){
+                    stabilize = x/2;
+                    stab = true;
+                }
+                glRotatef(stabilize, 0.0f, 0.0f, 0.0f); // to modify (stabilize)
             }
 
             break;
@@ -224,41 +231,42 @@ void CCanvas::paintGL()
 
 
 //    ##################AXES##################
- setView(View::Axis);
-    glDisable(GL_LIGHTING);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glBegin(GL_LINES);
-        glVertex3f(-6.0f, 0.0f, 0.0f);
-        glVertex3f(6.0f, 0.0f, 0.0f);
-    glEnd();
-    glColor3f(0.0f, 1.0f, 0.0f);
-    glBegin(GL_LINES);
-        glVertex3f(0.0f, -6.0f, 0.0f);
-        glVertex3f(0.0f, 6.0f, 0.0f);
-    glEnd();
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glBegin(GL_LINES);
-        glVertex3f(0.0f, 0.0f, -6.0f);
-        glVertex3f(0.0f, 0.0f, 6.0f);
-    glEnd();
-    glEnable(GL_LIGHTING);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_LIGHTING);
+// setView(View::Axis);
+//    glDisable(GL_LIGHTING);
+//    glColor3f(1.0f, 0.0f, 0.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(-6.0f, 0.0f, 0.0f);
+//        glVertex3f(6.0f, 0.0f, 0.0f);
+//    glEnd();
+//    glColor3f(0.0f, 1.0f, 0.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(0.0f, -6.0f, 0.0f);
+//        glVertex3f(0.0f, 6.0f, 0.0f);
+//    glEnd();
+//    glColor3f(0.0f, 0.0f, 1.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(0.0f, 0.0f, -6.0f);
+//        glVertex3f(0.0f, 0.0f, 6.0f);
+//    glEnd();
+//    glEnable(GL_LIGHTING);
+//    glMatrixMode(GL_MODELVIEW);
+//    glLoadIdentity();
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//    glDisable(GL_LIGHTING);
 //    glPopMatrix();
 
 //    ##################FLAT SURFACE (GREEN PLANE)##################
-//    setView(View::Cockpit);
+    setView(View::Axis);
 
-//    glColor3f(0.0f, 0.5f, 0.0f);
-//        glNormal3d(0.0000, 1.0000, 0.0000);
-//        glBegin(GL_TRIANGLE_STRIP);
-//        glVertex3f(-108.231724, 0.358408, 109.108315);
-//        glVertex3f(100.418297, 0.358408, 109.108315);
-//        glVertex3f(-108.231724, 0.358408, -109.541705);
-//        glVertex3f(100.418297, 0.358408, -109.541705);
-//        glEnd();
+    glColor3f(0.0f, 0.5f, 0.0f);
+        glNormal3d(0.0000, 1.0000, 0.0000);
+        glBegin(GL_TRIANGLE_STRIP);
+        glVertex3f(-108.231724, 0.358408, 109.108315);
+        glVertex3f(100.418297, 0.358408, 109.108315);
+        glVertex3f(-108.231724, 0.358408, -109.541705);
+        glVertex3f(100.418297, 0.358408, -109.541705);
+        glEnd();
+//     glPopMatrix();
 
      setView(View::Perspective);
      glColor3f(1.0f, 1.0f, 1.0f);
