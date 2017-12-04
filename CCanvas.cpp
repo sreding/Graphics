@@ -187,6 +187,7 @@ void CCanvas::setView(View _view) {
     int r = 10;
     switch(_view) {
         case Perspective:
+            glTranslatef(1.0, -2.5, -10.0);
             glTranslatef(1.0, 1.5 + x/2, -8.0 - x); // take off
 //            glTranslatef(1.0, -2.5, -10.0); // put in the axis
 //            glRotatef(x, 0.0f, x, 0.0f); //rotate on itself
@@ -204,6 +205,7 @@ void CCanvas::setView(View _view) {
         case Axis:
             // Maybe you want to have an option to view the scene from the train cockpit, up to you
             glTranslatef(1.0, -2.5, -10.0);
+            glScaled(2.0f,2.0f,2.0f);
 //            glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
             break;
         }
@@ -256,7 +258,7 @@ void CCanvas::paintGL()
 //    glPopMatrix();
 
 //    ##################FLAT SURFACE (GREEN PLANE)##################
-    setView(View::Axis);
+//    setView(View::Axis);
 
 //    glColor3f(0.0f, 0.5f, 0.0f);
 //        glNormal3d(0.0000, 1.0000, 0.0000);
@@ -296,11 +298,12 @@ void CCanvas::paintGL()
     for(int i =0; i<plane.objects.size(); i++){
         plane.objects[i].draw();
     }
-    glLoadIdentity();
+    glPopMatrix();
     setView(View::Axis);
     for(int i =0; i<tree.objects.size(); i++){
         tree.objects[i].draw();
     }
+
 
     /*
      * The models you load can have different scales. If you are drawing a proper model but nothing
