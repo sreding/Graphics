@@ -258,14 +258,14 @@ void CCanvas::paintGL()
 //    ##################FLAT SURFACE (GREEN PLANE)##################
     setView(View::Axis);
 
-    glColor3f(0.0f, 0.5f, 0.0f);
-        glNormal3d(0.0000, 1.0000, 0.0000);
-        glBegin(GL_TRIANGLE_STRIP);
-        glVertex3f(-108.231724, 0.358408, 109.108315);
-        glVertex3f(100.418297, 0.358408, 109.108315);
-        glVertex3f(-108.231724, 0.358408, -109.541705);
-        glVertex3f(100.418297, 0.358408, -109.541705);
-        glEnd();
+//    glColor3f(0.0f, 0.5f, 0.0f);
+//        glNormal3d(0.0000, 1.0000, 0.0000);
+//        glBegin(GL_TRIANGLE_STRIP);
+//        glVertex3f(-108.231724, 0.358408, 109.108315);
+//        glVertex3f(100.418297, 0.358408, 109.108315);
+//        glVertex3f(-108.231724, 0.358408, -109.541705);
+//        glVertex3f(100.418297, 0.358408, -109.541705);
+//        glEnd();
 //     glPopMatrix();
 
      setView(View::Perspective);
@@ -296,9 +296,11 @@ void CCanvas::paintGL()
     for(int i =0; i<plane.objects.size(); i++){
         plane.objects[i].draw();
     }
-//    for(int i =0; i<tree.objects.size(); i++){
-//        tree.objects[i].draw();
-//    }
+    glLoadIdentity();
+    setView(View::Axis);
+    for(int i =0; i<tree.objects.size(); i++){
+        tree.objects[i].draw();
+    }
 
     /*
      * The models you load can have different scales. If you are drawing a proper model but nothing
