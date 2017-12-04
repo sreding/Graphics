@@ -19,9 +19,9 @@ void CCanvas::initializeGL()
     glShadeModel(GL_SMOOTH);
 
     // One light source
-//    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
 
-//    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT0);
     /*
      * The position is transformed by the modelview matrix when glLightfv is called (just as if it were
      * a point), and it is stored in eye coordinates. If the w component of the position is 0.0,
@@ -34,13 +34,20 @@ void CCanvas::initializeGL()
     GLfloat lightpos[] = {0.0, 0.0, 1.0, 0.0};
     glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-    GLfloat lightAmb[]  = {0.3, 0.3, 0.3};
-    GLfloat lightDiff[] = {0.4, 0.4, 0.4};
-    GLfloat lightSpec[] = {0.5, 0.5, 0.5};
+//    GLfloat lightAmb[]  = {0.3, 0.3, 0.3};
+//    GLfloat lightDiff[] = {0.4, 0.4, 0.4};
+//    GLfloat lightSpec[] = {0.5, 0.5, 0.5};
 
-    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpec);
-    glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmb);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiff);
+//    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpec);
+//    glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmb);
+//    glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiff);
+
+    GLfloat ambient[] =  { 0.0, 0.0, 0.0, 1.0 };
+    GLfloat diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat specular[] = { 0.0, 1.0, 1.0, 1.0 };
+    glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
+    glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
 
     loadOBJ(pathToFile[0],tree);
     loadOBJ(pathToFile[1],plane);
@@ -183,11 +190,15 @@ void CCanvas::setView(View _view) {
     static int stabilize = 0;
     static bool stab = false;
 
-    x+=0.1;
-    int r = 10;
     switch(_view) {
-        case Perspective:
-            glTranslatef(1.0, -2.5, -10.0);
+        case Show:
+            glTranslatef(-1.0, -4.5, -10.0);
+            glTranslatef(1.0, 1.5, -8.0);
+//            glScaled(0.5,0.5,0.5);
+            break;
+        case Takeoff:
+            x+=0.2;
+            glTranslatef(-1.0, -4.5, -10.0);
             glTranslatef(1.0, 1.5 + x/2, -8.0 - x); // take off
 //            glTranslatef(1.0, -2.5, -10.0); // put in the axis
 //            glRotatef(x, 0.0f, x, 0.0f); //rotate on itself
@@ -222,14 +233,17 @@ void CCanvas::paintGL()
     glLoadIdentity();
     lookAt(0,0,0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
 
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glEnable(GL_COLOR_MATERIAL);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     glPushMatrix();
 
 
 //    ##################LIGHT##################
-//    GLfloat lightpos[] = {0.0f, 0.0f, 10.0f, 0.0f};
-//    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+    GLfloat lightpos[] = { -3.5, 3.5, 10.0, 0.0 };
+    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
 
 //    ##################AXES##################
@@ -270,13 +284,22 @@ void CCanvas::paintGL()
 //        glEnd();
 //     glPopMatrix();
 
-     setView(View::Perspective);
-     glColor3f(1.0f, 1.0f, 1.0f);
+//     glColor3f(1.0f, 1.0f, 1.0f);
+
+
+
+
+    // ##################AIRPLANE##################
+    static bool showb = true;
+    if(showb)
+        setView(View::Show);
+    else
+        setView(View::Takeoff);
 
     // ##################MATERIALS##################
-    /*
-    glColor3f(0.5f, 0.5f, 0.5f);
-    GLfloat amb[]  = {0.1f, 0.1f, 0.1f};
+
+//    glColor3f(0.5f, 0.5f, 0.5f);
+    GLfloat amb[]  = {1.0f, 1.0f, 1.0f};
     GLfloat diff[] = {0.7f, 0.7f, 0.7f};
     GLfloat spec[] = {0.1f, 0.1f, 0.1f};
     GLfloat shin = 0.0001;
@@ -284,9 +307,7 @@ void CCanvas::paintGL()
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diff);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &shin);
-    */
 
-    // ##################AIRPLANE##################
     // Drawing the object with texture
     textureTrain.bind();
     /*
@@ -294,11 +315,31 @@ void CCanvas::paintGL()
      *  GLfloat matrix[16];
      *  glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
     */
-
-    for(int i =0; i<plane.objects.size(); i++){
-        plane.objects[i].draw();
+    if(showb){
+        static float show = 0.1;
+        float showp = 0;
+        show += 0.2;
+        for(int i =0; i<plane.objects.size(); i++){
+            if(show > showp){
+                plane.objects[i].draw();
+            }
+            showp += 10;
+        }
+        if(show > 100){
+            showb = false;
+        }
+     }else{
+        for(int i =0; i<plane.objects.size(); i++){
+            plane.objects[i].draw();
+        }
     }
+
+
+//    for(int i =0; i<plane.objects.size(); i++){
+//        plane.objects[i].draw();
+//    }
     glPopMatrix();
+
     setView(View::Axis);
     for(int i =0; i<tree.objects.size(); i++){
         tree.objects[i].draw();
