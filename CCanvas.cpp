@@ -203,13 +203,13 @@ void CCanvas::setView(View _view) {
 //            glTranslatef(1.0, -2.5, -10.0); // put in the axis
 //            glRotatef(x, 0.0f, x, 0.0f); //rotate on itself
             if(x/2 < 30 && stabilize == 0){
-                glRotatef(x/2, 0.0f, 0.0f, 0.0f); //take off
+//                glRotatef(x/2, 1.0f, 0.0f, 0.0f); //take off
             }else{
                 if(!stab){
                     stabilize = x/2;
                     stab = true;
                 }
-                glRotatef(stabilize, 0.0f, 0.0f, 0.0f); // to modify (stabilize)
+//                glRotatef(stabilize, 1.0f, 0.0f, 0.0f); // to modify (stabilize)
             }
 
             break;
@@ -291,10 +291,18 @@ void CCanvas::paintGL()
 
     // ##################AIRPLANE##################
     static bool showb = true;
-    if(showb)
+
+    if(showb){
         setView(View::Show);
-    else
+        static float angle2 = 0;
+        angle2+=0.1;
+        glRotatef(angle2,0,1,0);
+    }else{
+        static float angle2 = 0;
+        angle2+=0.1;
+        glRotatef(angle2,0,1,0);
         setView(View::Takeoff);
+    }
 
     // ##################MATERIALS##################
 
@@ -315,10 +323,12 @@ void CCanvas::paintGL()
      *  GLfloat matrix[16];
      *  glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
     */
+
     if(showb){
+
         static float show = 0.1;
         float showp = 0;
-        show += 0.2;
+        show += 0.5;
         for(int i =0; i<plane.objects.size(); i++){
             if(show > showp){
                 plane.objects[i].draw();
@@ -341,9 +351,13 @@ void CCanvas::paintGL()
     glPopMatrix();
 
     setView(View::Axis);
+    static float angle = 0;
+    angle+=0.1;
+    glRotatef(angle,0,1,0);
     for(int i =0; i<tree.objects.size(); i++){
         tree.objects[i].draw();
     }
+
 
 
     /*
