@@ -34,7 +34,9 @@ SOURCES += ./CCanvas.cpp \
            ./PlyModel.cpp \
            ./objloader.cpp \
            ./tinyply.cpp \
-    ObjectGroup.cpp
+    ObjectGroup.cpp \
 
 # Forms
 FORMS += ./GLRender.ui
+
+DISTFILES +=
