@@ -31,7 +31,9 @@ public:
     const char *pathToFile[2];
 
     explicit CCanvas(QWidget *parent = 0) : QGLWidget(parent),
-        textureTrain(readfile())
+        textureTrain(readfile()),
+        textureTree(readfile()),
+        textureScene(readfile())
     {
         QTimer *timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(updateGL()));
@@ -85,7 +87,8 @@ private:
     void setView(View _view);
 
     // Models and textures
-    Texture textureTrain;
+    Texture textureTrain,textureTree,textureScene;
+
 
 };
 

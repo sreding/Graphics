@@ -19,9 +19,9 @@ void CCanvas::initializeGL()
     glShadeModel(GL_SMOOTH);
 
     // One light source
-    glEnable(GL_LIGHTING);
+//    glEnable(GL_LIGHTING);
 
-    glEnable(GL_LIGHT0);
+//    glEnable(GL_LIGHT0);
     /*
      * The position is transformed by the modelview matrix when glLightfv is called (just as if it were
      * a point), and it is stored in eye coordinates. If the w component of the position is 0.0,
@@ -57,6 +57,9 @@ void CCanvas::initializeGL()
      * Before you can use OBJ/PLY model, you need to initialize it by calling init() method.
      */
     textureTrain.setTexture();
+    textureScene.setTexture();
+    textureTree.setTexture();
+
 
 }
 
@@ -203,13 +206,13 @@ void CCanvas::setView(View _view) {
 //            glTranslatef(1.0, -2.5, -10.0); // put in the axis
 //            glRotatef(x, 0.0f, x, 0.0f); //rotate on itself
             if(x/2 < 30 && stabilize == 0){
-//                glRotatef(x/2, 1.0f, 0.0f, 0.0f); //take off
+                glRotatef(x/2, 1.0f, 0.0f, 0.0f); //take off
             }else{
                 if(!stab){
                     stabilize = x/2;
                     stab = true;
                 }
-//                glRotatef(stabilize, 1.0f, 0.0f, 0.0f); // to modify (stabilize)
+                glRotatef(stabilize, 1.0f, 0.0f, 0.0f); // to modify (stabilize)
             }
 
             break;
@@ -294,13 +297,9 @@ void CCanvas::paintGL()
 
     if(showb){
         setView(View::Show);
-        static float angle2 = 0;
-        angle2+=0.1;
-        glRotatef(angle2,0,1,0);
+
     }else{
-        static float angle2 = 0;
-        angle2+=0.1;
-        glRotatef(angle2,0,1,0);
+
         setView(View::Takeoff);
     }
 
@@ -351,12 +350,21 @@ void CCanvas::paintGL()
     glPopMatrix();
 
     setView(View::Axis);
-    static float angle = 0;
-    angle+=0.1;
-    glRotatef(angle,0,1,0);
+    textureTrain.unbind();
+    textureTree.bind();
     for(int i =0; i<tree.objects.size(); i++){
-        tree.objects[i].draw();
+        if(i == 1){
+           textureTree.unbind();
+           textureScene.bind();
+           tree.objects[i].draw();
+           textureScene.unbind();
+           textureTree.bind();
+        }else{
+           tree.objects[i].draw();
+        }
+
     }
+    textureTree.unbind();
 
 
 
@@ -369,5 +377,5 @@ void CCanvas::paintGL()
     // Remove the last transformation matrix from the stack - you have drawn your last
     // object with a new transformation and now you go back to the previous one
     glPopMatrix();
-    textureTrain.unbind();
+
 }
