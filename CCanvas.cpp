@@ -327,8 +327,8 @@ void CCanvas::paintGL()
 
         static float show = 0.1;
         float showp = 0;
-        show += 0.5;
-        for(int i =0; i<plane.objects.size(); i++){
+        show += 0.3;
+        for(int i =plane.objects.size() -1; i>=0; i--){
             if(show > showp){
                 plane.objects[i].draw();
             }
