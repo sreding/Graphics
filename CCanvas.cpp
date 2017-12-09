@@ -229,18 +229,69 @@ void CCanvas::setView(View _view) {
             break;
 
         case Main_Body:
-            static float main_body = 180.0;
-            main_body+= 0.2;
+            static float main_body = 0.0;
+//            main_body+= 0.2;
             glTranslatef(0.0, 2.0, 0.0); // put in the axis
-            glRotated(main_body, 0.0,1.0,0.0);
-//            glRotated(main_body, 0.0,0.0,1.0);
-
-            glScaled(0.5,0.5,0.5);
+            glRotated(180, 0.0,1.0,0.0);
+            glRotated(15, 1.0,0.0,0.0);
+            glScaled(0.1,0.1,0.1);
             break;
 
         case Propeller:
             rotatepropeller();
             break;
+        case L_Wheel:
+            static float l_wheel = 0.0;
+            if(l_wheel < 3.4)
+                l_wheel += 0.05;
+            glTranslated(-2.2,-0.3,-1.6); // l wheel
+            glRotated(-5, 0.0,1.0,0.0);
+            glRotated(cos(l_wheel) * 50 + 33, 0.0,0.0,1.0);
+            break;
+        case R_Wheel:
+            static float r_wheel = 0.0;
+            if(r_wheel < 3.4)
+                r_wheel += 0.05;
+            glTranslated(2.2,-0.3,-1.6); // r wheel
+            glRotated(5, 0.0,1.0,0.0);
+            glRotated(-cos(r_wheel) * 50 - 33, 0.0,0.0,1.0);
+            break;
+        case L_Flap:
+            static float l_flap = 0.0;
+            l_flap += 0.05;
+            glTranslated(-4.0,-0.1,-0.6); // l flap
+            glRotated(-7.0,0.0,1.0,0.0);
+            glRotated(-8,0.0,0.0,1.0);
+//            glRotated(cos(l_flap) * 60 - 30, 1.0,0.0,0.0);
+            break;
+        case R_Flap:
+            static float r_flap = 0.0;
+            r_flap += 0.05;
+            glTranslated(4.0,-0.1,-0.6); // r flap
+            glRotated(7.0,0.0,1.0,0.0);
+            glRotated(8,0.0,0.0,1.0);
+//            glRotated(cos(r_flap) * 60 - 30, 1.0,0.0,0.0);
+            break;
+        case Back:
+            static float back = 0.0;
+            back += 0.05;
+            glTranslated(-0.0,0.25,4.55); // back
+//            glRotated(-cos(back) * 60 , 0.0,1.0,0.0);
+            glRotated(3, 1.0,0.0,0.0);
+            break;
+        case R_B_Flap:
+            static float r_b_flap = 0.0;
+            r_b_flap += 0.05;
+            glTranslated(0.95,0.0,4.0); // r back flap
+//            glRotated(cos(r_b_flap) * 60 - 30, 1.0,0.0,0.0);
+            break;
+        case L_B_Flap:
+            static float l_b_flap = 0.0;
+            l_b_flap += 0.05;
+            glTranslated(-0.95,0.0,4.0); // l back flap
+//            glRotated(cos(l_b_flap) * 60 - 30, 1.0,0.0,0.0);
+            break;
+
         }
 }
 
@@ -314,7 +365,6 @@ void CCanvas::paintGL()
     setView(View::Main_Body);
 
     static float move = 0.0;
-    move += 0.1;
 
     texturePlane.bind();
     plane.objects[0].draw();
@@ -325,41 +375,31 @@ void CCanvas::paintGL()
     plane.objects[8].draw(); //IDENTITY AXIS MAIN_BODY
     popandpush();
 
-    glTranslated(-2.2,-0.3,-1.6); // l wheel
-    glRotated(-5, 0.0,1.0,0.0);
-    glRotated(cos(move/2) * 50 + 34, 0.0,0.0,1.0);
+    setView(View::L_Wheel);
     plane.objects[1].draw();
     popandpush();
 
-    glTranslated(2.2,-0.3,-1.6); // r wheel
-    glRotated(5, 0.0,1.0,0.0);
-    glRotated(-cos(move/2) * 50 - 34, 0.0,0.0,1.0);
+    setView(View::R_Wheel);
     plane.objects[2].draw();
     popandpush();
 
-    glTranslated(5.0,-1.0,0.0); // r flap
-    glRotated(cos(move/2) * 60 - 30, 1.0,0.0,0.0);
+    setView(View::R_Flap);
     plane.objects[3].draw();
     popandpush();
 
-    glTranslated(-5.0,-1.0,0.0); // l flap
-    glRotated(cos(move/2) * 60 - 30, 1.0,0.0,0.0);
+    setView(View::L_Flap);
     plane.objects[4].draw();
     popandpush();
 
-    glTranslated(-0.0,0.25,4.55); // back
-    glRotated(-cos(move/2) * 60 - 30, 0.0,1.0,0.0);
-    glRotated(3, 1.0,0.0,0.0);
+    setView(View::Back);
     plane.objects[5].draw();
     popandpush();
 
-    glTranslated(-5.0,-1.0,4.0); // l back flap
-    glRotated(cos(move/2) * 60 - 30, 1.0,0.0,0.0);
+    setView(View::L_B_Flap);
     plane.objects[6].draw();
     popandpush();
 
-    glTranslated(5.0,-1.0,4.0); // r back flap
-    glRotated(cos(move/2) * 60 - 30, 1.0,0.0,0.0);
+    setView(View::R_B_Flap);
     plane.objects[7].draw();
     popandpush();
 
