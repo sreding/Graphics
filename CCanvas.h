@@ -79,9 +79,10 @@ private:
 
 
     enum View {
-        Show = 0,    // View the scene from a perspective (from above, from a side, or whatever)
+        Main_Body = 0,    // View the scene from a perspective (from above, from a side, or whatever)
         Takeoff,             // View the scene from the train cockpit (if you want, or whatever other view)
-        Axis
+        Axis,
+        Propeller
     };
 
     void setView(View _view);
