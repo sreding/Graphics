@@ -229,10 +229,12 @@ void CCanvas::setView(View _view) {
             break;
 
         case Main_Body:
-            static float main_body = 90.0;
+            static float main_body = 180.0;
             main_body+= 0.2;
             glTranslatef(0.0, 2.0, 0.0); // put in the axis
             glRotated(main_body, 0.0,1.0,0.0);
+//            glRotated(main_body, 0.0,0.0,1.0);
+
             glScaled(0.5,0.5,0.5);
             break;
 
@@ -324,7 +326,7 @@ void CCanvas::paintGL()
     popandpush();
 
     glTranslated(-2.2,-0.3,-1.6); // l wheel
-    glRotated(5, 0.0,1.0,0.0);
+    glRotated(-5, 0.0,1.0,0.0);
     glRotated(cos(move/2) * 50 + 34, 0.0,0.0,1.0);
     plane.objects[1].draw();
     popandpush();
@@ -345,9 +347,9 @@ void CCanvas::paintGL()
     plane.objects[4].draw();
     popandpush();
 
-    glTranslated(0.0,-2.0,4.0); // back
+    glTranslated(-0.0,0.25,4.55); // back
     glRotated(-cos(move/2) * 60 - 30, 0.0,1.0,0.0);
-    glRotated(-10, 1.0,0.0,0.0);
+    glRotated(3, 1.0,0.0,0.0);
     plane.objects[5].draw();
     popandpush();
 
