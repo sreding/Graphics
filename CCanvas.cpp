@@ -190,8 +190,8 @@ void CCanvas::resizeGL(int width, int height)
 
 void setmainaxis(){
     static float axis_rotate = 360.0;
-    axis_rotate+=1;
-    glTranslatef(0.0, 0.0, -10.0); // put in the axis
+    axis_rotate+=0.2;
+    glTranslatef(0.0, -3.0, -10.0); // put in the axis
     glScaled(1.0f,1.0f,1.0f);
     glRotatef(90+ axis_rotate, 0.0f, 1.0f, 0.0f);
 }
@@ -292,21 +292,6 @@ void CCanvas::paintGL()
     glDisable(GL_LIGHTING);
     glPushMatrix(); // IDENTITY AXIS AXIS
 
-//    ##################FLAT SURFACE (GREEN PLANE)##################
-//    setView(View::Axis);
-
-//    glColor3f(0.0f, 0.5f, 0.0f);
-//        glNormal3d(0.0000, 1.0000, 0.0000);
-//        glBegin(GL_TRIANGLE_STRIP);
-//        glVertex3f(-108.231724, 0.358408, 109.108315);
-//        glVertex3f(100.418297, 0.358408, 109.108315);
-//        glVertex3f(-108.231724, 0.358408, -109.541705);
-//        glVertex3f(100.418297, 0.358408, -109.541705);
-//        glEnd();
-//     glPopMatrix();
-
-//     glColor3f(1.0f, 1.0f, 1.0f);
-
     // ##################AIRPLANE##################
 
 
@@ -323,8 +308,9 @@ void CCanvas::paintGL()
     glColor3f(1.0f, 1.0f, 1.0f);
 
     setView(View::Main_Body);
-    plane.objects[0].draw();
     textureTrain.bind();
+    plane.objects[0].draw();
+    textureTrain.unbind();
     glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
 
     setView(View::Propeller);
@@ -368,27 +354,26 @@ void CCanvas::paintGL()
     plane.objects[10].draw();
     popandpush();
 
-
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
     glPopMatrix(); // IDENTITY
+    textureTree.bind();
+    for(int i =0; i<tree.objects.size(); i++){
+        if(i == 1){
+           textureTree.unbind();
+           textureScene.bind();
+           tree.objects[i].draw();
+           textureScene.unbind();
+           textureTree.bind();
+        }else{
+           tree.objects[i].draw();
+        }
+
+    }
+    textureTree.unbind();
+    popandpush();
     glPopMatrix(); //
 
-//    setView(View::Axis);
-//    textureTrain.unbind();
-//    textureTree.bind();
-//    for(int i =0; i<tree.objects.size(); i++){
-//        if(i == 1){
-//           textureTree.unbind();
-//           textureScene.bind();
-//           tree.objects[i].draw();
-//           textureScene.unbind();
-//           textureTree.bind();
-//        }else{
-//           tree.objects[i].draw();
-//        }
 
-//    }
-//    textureTree.unbind();
 
     /*
      * Obtaining the values of the current modelview matrix
