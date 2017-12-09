@@ -190,72 +190,68 @@ void CCanvas::resizeGL(int width, int height)
 
 void setmainaxis(){
     static float axis_rotate = 0.0;
-//    axis_rotate+=0.2;
+    axis_rotate+=0.2;
     glTranslatef(0.0, -3.0, -10.0); // put in the axis
     glScaled(1.5f,1.5f,1.5f);
     glRotatef(90+ axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
 }
 
-void rotatepropeller(){
+void rotatepropeller(float x, float acc){
     static float propeller = 0;
-    propeller+=1;
+    propeller+=acc;
+    propeller *= 1.2;
+    propeller = fmod(propeller,10000000);
     glTranslatef(0.0, 0.0, -3.4); // move in proper position
     glRotated(propeller,0.0,0.0,1.0);
 }
 
 void CCanvas::setView(View _view) {
+    static float x = -4;
+    static float y = 1;
+    static float acc = 0.01;
 
     switch(_view) {
-        case Takeoff:
-            static float takeoff = 0.0;
-            static int stabilize = 0;
-            static bool stab = false;
-            takeoff+=0.2;
-//            glTranslatef(-1.0, -4.5, -10.0); TO CORRECT
-            glTranslatef(1.0, 1.5 + takeoff/2, -8.0 - takeoff); // take off
-            if(takeoff/2 < 30 && stabilize == 0){
-                glRotatef(takeoff/2, 1.0f, 0.0f, 0.0f); //take off
-            }else{
-                if(!stab){
-                    stabilize = takeoff/2;
-                    stab = true;
-                }
-                glRotatef(stabilize, 1.0f, 0.0f, 0.0f); // to modify (stabilize)
-            }
-            break;
-
         case Axis:
             setmainaxis();
             break;
 
-        case Main_Body:
-            static float main_body = 0.0;
-//            main_body+= 0.2;
-            glTranslatef(0.0, 2.0, 0.0); // put in the axis
+        case Main_Body: {
+            x+=acc;
+            acc *=1.0175;
+            if(x < 2){
+               y = 1;
+            }else{
+                y = 1 + x* x * 0.01;
+            }
+            glTranslatef(0.0,y, x); // put in the axis
             glRotated(180, 0.0,1.0,0.0);
             glRotated(15, 1.0,0.0,0.0);
             glScaled(0.1,0.1,0.1);
             break;
+        }
 
         case Propeller:
-            rotatepropeller();
+            rotatepropeller(x,acc);
             break;
+
         case L_Wheel:
-            static float l_wheel = 0.0;
-            if(l_wheel < 3.4)
-                l_wheel += 0.05;
+            static float l_wheel = 3.4;
+            if(l_wheel > 0.0)
+                l_wheel -= 0.05;
             glTranslated(-2.2,-0.3,-1.6); // l wheel
             glRotated(-5, 0.0,1.0,0.0);
             glRotated(cos(l_wheel) * 50 + 33, 0.0,0.0,1.0);
             break;
+
         case R_Wheel:
-            static float r_wheel = 0.0;
-            if(r_wheel < 3.4)
-                r_wheel += 0.05;
+            static float r_wheel = 3.4;
+            if(r_wheel > 0.0)
+                r_wheel -= 0.05;
             glTranslated(2.2,-0.3,-1.6); // r wheel
             glRotated(5, 0.0,1.0,0.0);
             glRotated(-cos(r_wheel) * 50 - 33, 0.0,0.0,1.0);
             break;
+
         case L_Flap:
             static float l_flap = 0.0;
             l_flap += 0.05;
@@ -264,6 +260,7 @@ void CCanvas::setView(View _view) {
             glRotated(-8,0.0,0.0,1.0);
 //            glRotated(cos(l_flap) * 60 - 30, 1.0,0.0,0.0);
             break;
+
         case R_Flap:
             static float r_flap = 0.0;
             r_flap += 0.05;
@@ -272,6 +269,7 @@ void CCanvas::setView(View _view) {
             glRotated(8,0.0,0.0,1.0);
 //            glRotated(cos(r_flap) * 60 - 30, 1.0,0.0,0.0);
             break;
+
         case Back:
             static float back = 0.0;
             back += 0.05;
@@ -279,12 +277,14 @@ void CCanvas::setView(View _view) {
 //            glRotated(-cos(back) * 60 , 0.0,1.0,0.0);
             glRotated(3, 1.0,0.0,0.0);
             break;
+
         case R_B_Flap:
             static float r_b_flap = 0.0;
             r_b_flap += 0.05;
             glTranslated(0.95,0.0,4.0); // r back flap
 //            glRotated(cos(r_b_flap) * 60 - 30, 1.0,0.0,0.0);
             break;
+
         case L_B_Flap:
             static float l_b_flap = 0.0;
             l_b_flap += 0.05;
@@ -362,46 +362,49 @@ void CCanvas::paintGL()
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &shin);
     glColor3f(1.0f, 1.0f, 1.0f);
 
-    setView(View::Main_Body);
-
-    static float move = 0.0;
-
     texturePlane.bind();
+    setView(View::Main_Body);
     plane.objects[0].draw();
-
     glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
 
-    setView(View::Propeller);
-    plane.objects[8].draw(); //IDENTITY AXIS MAIN_BODY
-    popandpush();
+    View views[8] = {View::L_Wheel, R_Wheel, R_Flap, L_Flap, Back, L_B_Flap, R_B_Flap, Propeller};
+    for(int i = 0; i < 8; i++){
+        setView(views[i]);
+        plane.objects[i+1].draw();
+        popandpush();
+    }
 
-    setView(View::L_Wheel);
-    plane.objects[1].draw();
-    popandpush();
+//    setView(View::Propeller);
+//    plane.objects[8].draw(); //IDENTITY AXIS MAIN_BODY
+//    popandpush();
 
-    setView(View::R_Wheel);
-    plane.objects[2].draw();
-    popandpush();
+//    setView(View::L_Wheel);
+//    plane.objects[1].draw();
+//    popandpush();
 
-    setView(View::R_Flap);
-    plane.objects[3].draw();
-    popandpush();
+//    setView(View::R_Wheel);
+//    plane.objects[2].draw();
+//    popandpush();
 
-    setView(View::L_Flap);
-    plane.objects[4].draw();
-    popandpush();
+//    setView(View::R_Flap);
+//    plane.objects[3].draw();
+//    popandpush();
 
-    setView(View::Back);
-    plane.objects[5].draw();
-    popandpush();
+//    setView(View::L_Flap);
+//    plane.objects[4].draw();
+//    popandpush();
 
-    setView(View::L_B_Flap);
-    plane.objects[6].draw();
-    popandpush();
+//    setView(View::Back);
+//    plane.objects[5].draw();
+//    popandpush();
 
-    setView(View::R_B_Flap);
-    plane.objects[7].draw();
-    popandpush();
+//    setView(View::L_B_Flap);
+//    plane.objects[6].draw();
+//    popandpush();
+
+//    setView(View::R_B_Flap);
+//    plane.objects[7].draw();
+//    popandpush();
 
 //    glTranslated(0.0,-1.0,0.0); // bomb 2
 //    plane.objects[9].draw();
