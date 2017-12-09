@@ -188,15 +188,17 @@ void CCanvas::resizeGL(int width, int height)
 
 //-----------------------------------------------------------------------------
 
-void setmainaxis(){
+void setmainaxis(float x, float y){
     static float axis_rotate = 0.0;
     axis_rotate+=0.2;
+//    glTranslatef(-x, -3.0 - y, -10.0); // put in the axis
     glTranslatef(0.0, -3.0, -10.0); // put in the axis
+
     glScaled(1.5f,1.5f,1.5f);
-    glRotatef(90+ axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
+    glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
 }
 
-void rotatepropeller(float x, float acc){
+void rotatepropeller(float acc){
     static float propeller = 0;
     propeller+=acc;
     propeller *= 1.2;
@@ -212,16 +214,17 @@ void CCanvas::setView(View _view) {
 
     switch(_view) {
         case Axis:
-            setmainaxis();
+            setmainaxis(x, y);
             break;
 
         case Main_Body: {
             x+=acc;
             acc *=1.0175;
-            if(x < 2){
+            if(x <= 1){
                y = 1;
             }else{
-                y = 1 + x* x * 0.01;
+                if(y < 3)
+                    y = 1 + x * x * 0.04;
             }
             glTranslatef(0.0,y, x); // put in the axis
             glRotated(180, 0.0,1.0,0.0);
@@ -231,7 +234,7 @@ void CCanvas::setView(View _view) {
         }
 
         case Propeller:
-            rotatepropeller(x,acc);
+            rotatepropeller(acc);
             break;
 
         case L_Wheel:
@@ -325,26 +328,26 @@ void CCanvas::paintGL()
 
 //    ##################AXES##################
  setView(View::Axis);
-    glDisable(GL_LIGHTING);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glBegin(GL_LINES);
-        glVertex3f(-6.0f, 0.0f, 0.0f);
-        glVertex3f(6.0f, 0.0f, 0.0f);
-    glEnd();
-    glColor3f(0.0f, 1.0f, 0.0f);
-    glBegin(GL_LINES);
-        glVertex3f(0.0f, -6.0f, 0.0f);
-        glVertex3f(0.0f, 6.0f, 0.0f);
-    glEnd();
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glBegin(GL_LINES);
-        glVertex3f(0.0f, 0.0f, -6.0f);
-        glVertex3f(0.0f, 0.0f, 6.0f);
-    glEnd();
-    glEnable(GL_LIGHTING);
-    glMatrixMode(GL_MODELVIEW);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_LIGHTING);
+//    glDisable(GL_LIGHTING);
+//    glColor3f(1.0f, 0.0f, 0.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(-6.0f, 0.0f, 0.0f);
+//        glVertex3f(6.0f, 0.0f, 0.0f);
+//    glEnd();
+//    glColor3f(0.0f, 1.0f, 0.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(0.0f, -6.0f, 0.0f);
+//        glVertex3f(0.0f, 6.0f, 0.0f);
+//    glEnd();
+//    glColor3f(0.0f, 0.0f, 1.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(0.0f, 0.0f, -6.0f);
+//        glVertex3f(0.0f, 0.0f, 6.0f);
+//    glEnd();
+//    glEnable(GL_LIGHTING);
+//    glMatrixMode(GL_MODELVIEW);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//    glDisable(GL_LIGHTING);
     glPushMatrix(); // IDENTITY AXIS AXIS
 
     // ##################AIRPLANE##################
@@ -374,65 +377,29 @@ void CCanvas::paintGL()
         popandpush();
     }
 
-//    setView(View::Propeller);
-//    plane.objects[8].draw(); //IDENTITY AXIS MAIN_BODY
-//    popandpush();
-
-//    setView(View::L_Wheel);
-//    plane.objects[1].draw();
-//    popandpush();
-
-//    setView(View::R_Wheel);
-//    plane.objects[2].draw();
-//    popandpush();
-
-//    setView(View::R_Flap);
-//    plane.objects[3].draw();
-//    popandpush();
-
-//    setView(View::L_Flap);
-//    plane.objects[4].draw();
-//    popandpush();
-
-//    setView(View::Back);
-//    plane.objects[5].draw();
-//    popandpush();
-
-//    setView(View::L_B_Flap);
-//    plane.objects[6].draw();
-//    popandpush();
-
-//    setView(View::R_B_Flap);
-//    plane.objects[7].draw();
-//    popandpush();
-
-//    glTranslated(0.0,-1.0,0.0); // bomb 2
-//    plane.objects[9].draw();
-//    popandpush();
-
-//    glTranslated(0.0,-2.0,0.0); // bomb 1
-//    plane.objects[10].draw();
-//    texturePlane.unbind();
-//    popandpush();
-
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
-    glPopMatrix(); // IDENTITY
+    popandpush(); // IDENTITY AXIS AXIS
+
     textureTree.bind();
+
     for(int i =0; i<tree.objects.size(); i++){
         if(i == 1){
            textureTree.unbind();
            textureScene.bind();
+           glScaled(5.0,5.0,5.0);
            tree.objects[i].draw();
            textureScene.unbind();
+           popandpush();
            textureTree.bind();
         }else{
            tree.objects[i].draw();
+           popandpush();
         }
-
     }
+
     textureTree.unbind();
-    popandpush();
-    glPopMatrix(); //
+    glPopMatrix(); // IDENTITY AXIS
+    glPopMatrix(); // IDENTITY
 
 
     /*
