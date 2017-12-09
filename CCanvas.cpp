@@ -56,7 +56,7 @@ void CCanvas::initializeGL()
      * Before you can use the texture you need to initialize it by calling the setTexture() method.
      * Before you can use OBJ/PLY model, you need to initialize it by calling init() method.
      */
-    textureTrain.setTexture();
+    texturePlane.setTexture();
     textureScene.setTexture();
     textureTree.setTexture();
 
@@ -324,7 +324,7 @@ void CCanvas::paintGL()
 
     setView(View::Main_Body);
     plane.objects[0].draw();
-    textureTrain.bind();
+    texturePlane.bind();
     glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
 
     setView(View::Propeller);
@@ -374,7 +374,7 @@ void CCanvas::paintGL()
     glPopMatrix(); //
 
 //    setView(View::Axis);
-//    textureTrain.unbind();
+//    texturePlane.unbind();
 //    textureTree.bind();
 //    for(int i =0; i<tree.objects.size(); i++){
 //        if(i == 1){

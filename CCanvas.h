@@ -31,7 +31,7 @@ public:
     const char *pathToFile[2];
 
     explicit CCanvas(QWidget *parent = 0) : QGLWidget(parent),
-        textureTrain(readfile()),
+        texturePlane(readfile()),
         textureTree(readfile()),
         textureScene(readfile())
     {
@@ -88,7 +88,7 @@ private:
     void setView(View _view);
 
     // Models and textures
-    Texture textureTrain,textureTree,textureScene;
+    Texture texturePlane,textureTree,textureScene;
 
 
 };
