@@ -189,16 +189,16 @@ void CCanvas::resizeGL(int width, int height)
 //-----------------------------------------------------------------------------
 
 void setmainaxis(){
-    static float axis_rotate = 360.0;
+    static float axis_rotate = 0.0;
 //    axis_rotate+=0.2;
     glTranslatef(0.0, -3.0, -10.0); // put in the axis
     glScaled(1.5f,1.5f,1.5f);
-    glRotatef(90+ axis_rotate, 0.0f, 1.0f, 0.0f);
+    glRotatef(90+ axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
 }
 
 void rotatepropeller(){
-    static float propeller = 0.0;
-    propeller+= 2;
+    static float propeller = 0;
+    propeller+=1;
     glTranslatef(0.0, 0.0, -3.4); // move in proper position
     glRotated(propeller,0.0,0.0,1.0);
 }
@@ -229,8 +229,10 @@ void CCanvas::setView(View _view) {
             break;
 
         case Main_Body:
+            static float main_body = 90.0;
+            main_body+= 0.2;
             glTranslatef(0.0, 2.0, 0.0); // put in the axis
-            glRotatef(5, 1.0f, 0.0f, 0.0); //rotate around x axis
+            glRotated(main_body, 0.0,1.0,0.0);
             glScaled(0.5,0.5,0.5);
             break;
 
@@ -238,7 +240,6 @@ void CCanvas::setView(View _view) {
             rotatepropeller();
             break;
         }
-
 }
 
 void popandpush(){
@@ -310,6 +311,9 @@ void CCanvas::paintGL()
 
     setView(View::Main_Body);
 
+    static float move = 0.0;
+    move += 0.1;
+
     texturePlane.bind();
     plane.objects[0].draw();
 
@@ -319,47 +323,56 @@ void CCanvas::paintGL()
     plane.objects[8].draw(); //IDENTITY AXIS MAIN_BODY
     popandpush();
 
-    glTranslated(-2.0,-1.0,0.0); // l wheel
+    glTranslated(-2.2,-0.3,-1.6); // l wheel
+    glRotated(5, 0.0,1.0,0.0);
+    glRotated(cos(move/2) * 50 + 34, 0.0,0.0,1.0);
     plane.objects[1].draw();
     popandpush();
 
-    glTranslated(2.0,-1.0,0.0); // r wheel
+    glTranslated(2.2,-0.3,-1.6); // r wheel
+    glRotated(5, 0.0,1.0,0.0);
+    glRotated(-cos(move/2) * 50 - 34, 0.0,0.0,1.0);
     plane.objects[2].draw();
     popandpush();
 
     glTranslated(5.0,-1.0,0.0); // r flap
+    glRotated(cos(move/2) * 60 - 30, 1.0,0.0,0.0);
     plane.objects[3].draw();
     popandpush();
 
     glTranslated(-5.0,-1.0,0.0); // l flap
+    glRotated(cos(move/2) * 60 - 30, 1.0,0.0,0.0);
     plane.objects[4].draw();
     popandpush();
 
     glTranslated(0.0,-2.0,4.0); // back
-    glRotated(0, 0.0,1.0,0.0);
+    glRotated(-cos(move/2) * 60 - 30, 0.0,1.0,0.0);
+    glRotated(-10, 1.0,0.0,0.0);
     plane.objects[5].draw();
     popandpush();
 
     glTranslated(-5.0,-1.0,4.0); // l back flap
+    glRotated(cos(move/2) * 60 - 30, 1.0,0.0,0.0);
     plane.objects[6].draw();
     popandpush();
 
     glTranslated(5.0,-1.0,4.0); // r back flap
+    glRotated(cos(move/2) * 60 - 30, 1.0,0.0,0.0);
     plane.objects[7].draw();
     popandpush();
 
-    glTranslated(0.0,-1.0,0.0); // bomb 2
-    plane.objects[9].draw();
-    popandpush();
+//    glTranslated(0.0,-1.0,0.0); // bomb 2
+//    plane.objects[9].draw();
+//    popandpush();
 
-    glTranslated(0.0,-2.0,0.0); // bomb 1
-    plane.objects[10].draw();
-    texturePlane.unbind();
-    popandpush();
+//    glTranslated(0.0,-2.0,0.0); // bomb 1
+//    plane.objects[10].draw();
+//    texturePlane.unbind();
+//    popandpush();
 
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
     glPopMatrix(); // IDENTITY
-
+    textureTree.bind();
     for(int i =0; i<tree.objects.size(); i++){
         if(i == 1){
            textureTree.unbind();
