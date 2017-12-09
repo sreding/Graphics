@@ -190,9 +190,9 @@ void CCanvas::resizeGL(int width, int height)
 
 void setmainaxis(){
     static float axis_rotate = 360.0;
-    axis_rotate+=0.2;
+//    axis_rotate+=0.2;
     glTranslatef(0.0, -3.0, -10.0); // put in the axis
-    glScaled(1.0f,1.0f,1.0f);
+    glScaled(1.5f,1.5f,1.5f);
     glRotatef(90+ axis_rotate, 0.0f, 1.0f, 0.0f);
 }
 
@@ -231,6 +231,7 @@ void CCanvas::setView(View _view) {
         case Main_Body:
             glTranslatef(0.0, 2.0, 0.0); // put in the axis
             glRotatef(5, 1.0f, 0.0f, 0.0); //rotate around x axis
+            glScaled(0.5,0.5,0.5);
             break;
 
         case Propeller:
@@ -311,7 +312,7 @@ void CCanvas::paintGL()
 
     texturePlane.bind();
     plane.objects[0].draw();
-    texturePlane.unbind();
+
     glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
 
     setView(View::Propeller);
@@ -353,11 +354,12 @@ void CCanvas::paintGL()
 
     glTranslated(0.0,-2.0,0.0); // bomb 1
     plane.objects[10].draw();
+    texturePlane.unbind();
     popandpush();
 
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
     glPopMatrix(); // IDENTITY
-    textureTree.bind();
+
     for(int i =0; i<tree.objects.size(); i++){
         if(i == 1){
            textureTree.unbind();
