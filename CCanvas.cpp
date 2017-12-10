@@ -57,8 +57,9 @@ void CCanvas::initializeGL()
      * Before you can use OBJ/PLY model, you need to initialize it by calling init() method.
      */
     texturePlane.setTexture();
-    textureScene.setTexture();
-    textureTree.setTexture();
+    textureGrass.setTexture();
+    textureMountain.setTexture();
+    textureWater.setTexture();
 
 
 }
@@ -376,28 +377,27 @@ void CCanvas::paintGL()
         plane.objects[i+1].draw();
         popandpush();
     }
+    texturePlane.unbind();
 
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
     popandpush(); // IDENTITY AXIS AXIS
 
-    textureTree.bind();
+    textureWater.bind();
+    tree.objects[0].draw();
+    popandpush();
+    textureWater.unbind();
 
-    for(int i =0; i<tree.objects.size(); i++){
-        if(i == 1){
-           textureTree.unbind();
-           textureScene.bind();
-           glScaled(5.0,5.0,5.0);
-           tree.objects[i].draw();
-           textureScene.unbind();
-           popandpush();
-           textureTree.bind();
-        }else{
-           tree.objects[i].draw();
-           popandpush();
-        }
-    }
+    textureMountain.bind();
+    tree.objects[2].draw();
+    popandpush();
+    textureMountain.unbind();
 
-    textureTree.unbind();
+    textureGrass.bind();
+    tree.objects[1].draw();
+    popandpush();
+    textureGrass.unbind();
+
+
     glPopMatrix(); // IDENTITY AXIS
     glPopMatrix(); // IDENTITY
 
