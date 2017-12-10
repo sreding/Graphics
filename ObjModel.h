@@ -20,6 +20,7 @@ private:
 
     GLuint vertexBuffer;
     GLuint uvBuffer;
+    GLuint normalsBuffer;
 };
 
 #endif // SPHERE_H

@@ -19,9 +19,9 @@ void CCanvas::initializeGL()
     glShadeModel(GL_SMOOTH);
 
     // One light source
-//    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
 
-//    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT0);
     /*
      * The position is transformed by the modelview matrix when glLightfv is called (just as if it were
      * a point), and it is stored in eye coordinates. If the w component of the position is 0.0,
@@ -34,13 +34,13 @@ void CCanvas::initializeGL()
     GLfloat lightpos[] = {0.0, 0.0, 1.0, 0.0};
     glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-//    GLfloat lightAmb[]  = {0.3, 0.3, 0.3};
-//    GLfloat lightDiff[] = {0.4, 0.4, 0.4};
-//    GLfloat lightSpec[] = {0.5, 0.5, 0.5};
+    GLfloat lightAmb[]  = {0.3, 0.3, 0.3};
+    GLfloat lightDiff[] = {0.4, 0.4, 0.4};
+    GLfloat lightSpec[] = {0.5, 0.5, 0.5};
 
-//    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpec);
-//    glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmb);
-//    glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiff);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpec);
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiff);
 
     GLfloat ambient[] =  { 0.0, 0.0, 0.0, 1.0 };
     GLfloat diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
@@ -190,9 +190,9 @@ void CCanvas::resizeGL(int width, int height)
 
 void setmainaxis(float x, float y){
     static float axis_rotate = 0.0;
-    axis_rotate+=0.2;
+//    axis_rotate+=0.2;
 //    glTranslatef(-x, -3.0 - y, -10.0); // put in the axis
-    glTranslatef(0.0, -3.0, -10.0); // put in the axis
+    glTranslatef(0.0, -3.0, -5.0); // put in the axis
 
     glScaled(1.5f,1.5f,1.5f);
     glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
@@ -226,7 +226,7 @@ void CCanvas::setView(View _view) {
                 if(y < 3)
                     y = 1 + x * x * 0.04;
             }
-            glTranslatef(0.0,y, x); // put in the axis
+            glTranslatef(0.0,y, 0); // put in the axis
             glRotated(180, 0.0,1.0,0.0);
             glRotated(15, 1.0,0.0,0.0);
             glScaled(0.1,0.1,0.1);
@@ -352,7 +352,8 @@ void CCanvas::paintGL()
 
     // ##################AIRPLANE##################
 
-
+    GLfloat lightpos[] = {0.0, 0.0, 1.0, 0.0};
+    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
     // ##################MATERIALS##################
 
     GLfloat amb[]  = {1.0f, 1.0f, 1.0f};
