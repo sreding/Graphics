@@ -32,14 +32,15 @@ public:
 
     explicit CCanvas(QWidget *parent = 0) : QGLWidget(parent),
         texturePlane(readfile()),
-        textureTree(readfile()),
-        textureScene(readfile())
+        textureGrass(readfile()),
+        textureMountain(readfile()),
+        textureWater(readfile())
     {
         QTimer *timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(updateGL()));
         timer->start(10);
-        pathToFile[0]= readfile();
-        pathToFile[1] = readfile();
+        pathToFile[0]= readfile(); // scene
+        pathToFile[1] = readfile(); // plane
     }
 
 
@@ -94,7 +95,7 @@ private:
     void setView(View _view);
 
     // Models and textures
-    Texture texturePlane,textureTree,textureScene;
+    Texture texturePlane,textureGrass,textureMountain,textureWater;
 
 
 };
