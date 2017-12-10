@@ -227,7 +227,7 @@ void CCanvas::setView(View _view) {
                 if(y < 3)
                     y = 1 + x * x * 0.04;
             }
-            glTranslatef(0.0,y, 0); // put in the axis
+            glTranslatef(0.0,y, x); // put in the axis
             glRotated(180, 0.0,1.0,0.0);
             glRotated(15, 1.0,0.0,0.0);
             glScaled(0.1,0.1,0.1);
@@ -298,7 +298,6 @@ void CCanvas::setView(View _view) {
 
         }
 }
-
 void popandpush(){
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
     glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
