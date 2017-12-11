@@ -200,22 +200,30 @@ void setmainaxis(float x, float y){
     float scaleFactor = 3.0f;
     glScaled(scaleFactor,scaleFactor,scaleFactor);
     glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
-
 }
 
 void rotatepropeller(float acc){
     static float propeller = 0;
-    propeller+=acc;
-    propeller *= 1.2;
-    propeller = fmod(propeller,10000000);
+    if(propeller>360){
+       propeller+=255;
+    }else{
+        propeller+=acc;
+        propeller *= 1.2;
+        propeller = fmod(propeller,10000000);
+    }
+//    propeller = fmod(propeller,360);
     glTranslatef(0.0, 0.0, -3.4); // move in proper position
     glRotated(propeller,0.0,0.0,1.0);
 }
+
 
 void CCanvas::setView(View _view) {
     static float x = -4;
     static float y = 1;
     static float acc = 0.01;
+    static int plane_state = 1;
+//    game_tick++;
+    static Path path[6] = {Start, Land,Right, Left, Up, Down};
 
     switch(_view) {
         case Axis:
@@ -223,13 +231,43 @@ void CCanvas::setView(View _view) {
             break;
 
         case Main_Body: {
-            x+=acc;
-            acc *=1.0175;
-            if(x <= 1){
-               y = 0;
-            }else{
-                if(y < 2)
-                    y =  x * x * 0.005;
+            switch(path[plane_state]){
+                case Start: {
+                        x+=acc;
+                        acc *=1.0175;
+                        if(x <= 1){
+                           y = 0;
+                        }else{
+                            if(y < 2)
+                                y =  x * x * 0.005;
+
+                        }
+                        break;
+                    }
+            case Land:{
+                        x+=acc;
+                        acc *=1.0175;
+                        if(x <= 1){
+                           y = 0;
+                        }else{
+                            if(y < 2)
+                                y =  x * x * -0.005;
+
+                        }
+                        break;
+                    }
+                case Left:
+                    x++;
+                    break;
+                case Right:
+                    x--;
+                    break;
+                case Up:
+                    y++;
+                    break;
+                case Down:
+                    y--;
+                    break;
 
             }
             glTranslatef(x,y, 0); // put in the axis

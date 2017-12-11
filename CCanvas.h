@@ -93,6 +93,14 @@ private:
         L_Wheel,
         R_Wheel
     };
+    enum Path {
+        Start = 0,
+        Land,
+        Left,
+        Right,
+        Up,
+        Down
+    };
 
     void setView(View _view);
 
