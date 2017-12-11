@@ -333,26 +333,25 @@ void CCanvas::paintGL()
 
 //    ##################AXES##################
  setView(View::Axis);
-    glDisable(GL_LIGHTING);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glBegin(GL_LINES);
-        glVertex3f(-6.0f, 0.0f, 0.0f);
-        glVertex3f(6.0f, 0.0f, 0.0f);
-    glEnd();
-    glColor3f(0.0f, 1.0f, 0.0f);
-    glBegin(GL_LINES);
-        glVertex3f(0.0f, -6.0f, 0.0f);
-        glVertex3f(0.0f, 6.0f, 0.0f);
-    glEnd();
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glBegin(GL_LINES);
-        glVertex3f(0.0f, 0.0f, -6.0f);
-        glVertex3f(0.0f, 0.0f, 6.0f);
-    glEnd();
-    glEnable(GL_LIGHTING);
+//    glDisable(GL_LIGHTING);
+//    glColor3f(1.0f, 0.0f, 0.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(-6.0f, 0.0f, 0.0f);
+//        glVertex3f(6.0f, 0.0f, 0.0f);
+//    glEnd();
+//    glColor3f(0.0f, 1.0f, 0.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(0.0f, -6.0f, 0.0f);
+//        glVertex3f(0.0f, 6.0f, 0.0f);
+//    glEnd();
+//    glColor3f(0.0f, 0.0f, 1.0f);
+//    glBegin(GL_LINES);
+//        glVertex3f(0.0f, 0.0f, -6.0f);
+//        glVertex3f(0.0f, 0.0f, 6.0f);
+//    glEnd();
+//    glEnable(GL_LIGHTING);
     glMatrixMode(GL_MODELVIEW);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_LIGHTING);
     glPushMatrix(); // IDENTITY AXIS AXIS
      glEnable(GL_LIGHTING);
 
@@ -388,9 +387,7 @@ void CCanvas::paintGL()
     popandpush(); // IDENTITY AXIS AXIS
 
     textureLane.bind(); // LANE
-    static float move = 0.0;
-    move += 0.02;
-    glTranslated(-1.0,0.01,0.0);
+    glTranslated(0.0,0.01,0.0);
     scene.objects[0].draw();
     popandpush();
     textureLane.unbind();
@@ -400,16 +397,19 @@ void CCanvas::paintGL()
     popandpush();
     textureWater.unbind();
 
-    textureTree.bind(); // TREE
-    scene.objects[1].draw();
-    popandpush();
-    textureTree.unbind();
 
-    textureTree.bind(); // TREE
-    glTranslated(1.0,0,0);
-    scene.objects[1].draw();
-    popandpush();
-    textureTree.unbind();
+        textureTree.bind(); // TREE
+        glTranslated(0,0,0);
+        scene.objects[1].draw();
+        popandpush();
+        textureTree.unbind();
+    for(int i =5; i < 12; i++){
+        textureTree.bind(); // TREE
+        glTranslated(0,0,0);
+        scene.objects[i].draw();
+        popandpush();
+        textureTree.unbind();
+    }
 
     textureGrass.bind(); // GRASS
     scene.objects[3].draw();
