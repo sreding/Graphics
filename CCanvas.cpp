@@ -194,9 +194,9 @@ void CCanvas::resizeGL(int width, int height)
 
 void setmainaxis(float x, float y){
     static float axis_rotate = 0.0;
-    axis_rotate+=0.2;
+//    axis_rotate+=0.2;
 //    glTranslatef(-x, -3.0 - y, -10.0); // put in the axis
-    glTranslatef(0.0, -3.0, -10.0); // put in the axis
+    glTranslatef(0.0, -1.5, -5.0); // put in the axis
 
     glScaled(1.5f,1.5f,1.5f);
     glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
@@ -222,8 +222,9 @@ void CCanvas::setView(View _view) {
             break;
 
         case Main_Body: {
-            x+=acc;
-            acc *=1.0175;
+//            x+=acc;
+//            acc *=1.0175;
+        x=0;
             if(x <= 1){
                y = 1;
             }else{

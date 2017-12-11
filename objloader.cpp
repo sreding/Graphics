@@ -115,7 +115,6 @@ bool loadOBJ(
                 }else if ( strcmp( lineHeader, "vt" ) == 0 ){
                         float uvx, uvy;
                         fscanf(file, "%f %f\n", &uvx, &uvy );
-                        uvy = -uvy; // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
                         Point2d uv(uvx, uvy);
 			temp_uvs.push_back(uv);
 		}else if ( strcmp( lineHeader, "vn" ) == 0 ){
