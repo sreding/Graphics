@@ -34,20 +34,20 @@ void CCanvas::initializeGL()
     GLfloat lightpos[] = {0.0, 0.0, 1.0, 0.0};
     glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-    GLfloat lightAmb[]  = {0.3, 0.3, 0.3};
-    GLfloat lightDiff[] = {0.4, 0.4, 0.4};
-    GLfloat lightSpec[] = {0.5, 0.5, 0.5};
+    GLfloat lightAmb[]  = {0.4, 0.4, 0.4};
+    GLfloat lightDiff[] = {0.5, 0.5, 0.5};
+    GLfloat lightSpec[] = {0.6, 0.6, 0.6};
 
     glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpec);
     glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmb);
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiff);
 
-    GLfloat ambient[] =  { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat specular[] = { 0.0, 1.0, 1.0, 1.0 };
-    glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
-    glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
-    glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
+//    GLfloat ambient[] =  { 0.0, 0.0, 0.0, 1.0 };
+//    GLfloat diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
+//    GLfloat specular[] = { 0.0, 1.0, 1.0, 1.0 };
+//    glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
+//    glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
+//    glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
 
     loadOBJ(pathToFile[0],scene);
     loadOBJ(pathToFile[1],plane);
@@ -194,12 +194,13 @@ void CCanvas::resizeGL(int width, int height)
 
 void setmainaxis(float x, float y){
     static float axis_rotate = 0.0;
-//    axis_rotate+=0.2;
+    axis_rotate+=0.2;
 //    glTranslatef(-x, -3.0 - y, -10.0); // put in the axis
-    glTranslatef(0.0, -1.5, -5.0); // put in the axis
-
-    glScaled(1.5f,1.5f,1.5f);
+    glTranslatef(0.0, -3.0, -10.0); // put in the axis
+    float scaleFactor = 3.0f;
+    glScaled(scaleFactor,scaleFactor,scaleFactor);
     glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
+
 }
 
 void rotatepropeller(float acc){
@@ -222,17 +223,17 @@ void CCanvas::setView(View _view) {
             break;
 
         case Main_Body: {
-//            x+=acc;
-//            acc *=1.0175;
-        x=0;
+            x+=acc;
+            acc *=1.0175;
             if(x <= 1){
-               y = 1;
+               y = 0;
             }else{
-                if(y < 3)
-                    y = 1 + x * x * 0.04;
+                if(y < 2)
+                    y =  x * x * 0.005;
+
             }
-            glTranslatef(0.0,y, x); // put in the axis
-            glRotated(180, 0.0,1.0,0.0);
+            glTranslatef(x,y, 0); // put in the axis
+            glRotated(270, 0.0,1.0,0.0);
             glRotated(15, 1.0,0.0,0.0);
             glScaled(0.1,0.1,0.1);
             break;
@@ -326,7 +327,7 @@ void CCanvas::paintGL()
 
 
 //    ##################LIGHT##################
-    GLfloat lightpos[] = { -3.5, 3.5, 10.0, 0.0 };
+    GLfloat lightpos[] = { 1, 1, -10.0,1.0 };
     glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
 
@@ -353,6 +354,7 @@ void CCanvas::paintGL()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_LIGHTING);
     glPushMatrix(); // IDENTITY AXIS AXIS
+     glEnable(GL_LIGHTING);
 
     // ##################AIRPLANE##################
 
