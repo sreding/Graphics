@@ -5,7 +5,7 @@
 #include "ObjectGroup.h"
 #include "objloader.hpp"
 using namespace std;
-static ObjectGroup tree("");
+static ObjectGroup scene("");
 static ObjectGroup plane("");
 //-----------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ void CCanvas::initializeGL()
     glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
     glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
 
-    loadOBJ(pathToFile[0],tree);
+    loadOBJ(pathToFile[0],scene);
     loadOBJ(pathToFile[1],plane);
 
     /*
@@ -60,6 +60,9 @@ void CCanvas::initializeGL()
     textureGrass.setTexture();
     textureMountain.setTexture();
     textureWater.setTexture();
+    textureLane.setTexture();
+    textureTree.setTexture();
+
 
 
 }
@@ -191,9 +194,9 @@ void CCanvas::resizeGL(int width, int height)
 
 void setmainaxis(float x, float y){
     static float axis_rotate = 0.0;
-//    axis_rotate+=0.2;
+    axis_rotate+=0.2;
 //    glTranslatef(-x, -3.0 - y, -10.0); // put in the axis
-    glTranslatef(0.0, -3.0, -5.0); // put in the axis
+    glTranslatef(0.0, -3.0, -10.0); // put in the axis
 
     glScaled(1.5f,1.5f,1.5f);
     glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
@@ -322,38 +325,37 @@ void CCanvas::paintGL()
 
 
 //    ##################LIGHT##################
-//    GLfloat lightpos[] = { -3.5, 3.5, 10.0, 0.0 };
-//    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+    GLfloat lightpos[] = { -3.5, 3.5, 10.0, 0.0 };
+    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
 
 //    ##################AXES##################
  setView(View::Axis);
-//    glDisable(GL_LIGHTING);
-//    glColor3f(1.0f, 0.0f, 0.0f);
-//    glBegin(GL_LINES);
-//        glVertex3f(-6.0f, 0.0f, 0.0f);
-//        glVertex3f(6.0f, 0.0f, 0.0f);
-//    glEnd();
-//    glColor3f(0.0f, 1.0f, 0.0f);
-//    glBegin(GL_LINES);
-//        glVertex3f(0.0f, -6.0f, 0.0f);
-//        glVertex3f(0.0f, 6.0f, 0.0f);
-//    glEnd();
-//    glColor3f(0.0f, 0.0f, 1.0f);
-//    glBegin(GL_LINES);
-//        glVertex3f(0.0f, 0.0f, -6.0f);
-//        glVertex3f(0.0f, 0.0f, 6.0f);
-//    glEnd();
-//    glEnable(GL_LIGHTING);
-//    glMatrixMode(GL_MODELVIEW);
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHTING);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glBegin(GL_LINES);
+        glVertex3f(-6.0f, 0.0f, 0.0f);
+        glVertex3f(6.0f, 0.0f, 0.0f);
+    glEnd();
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glBegin(GL_LINES);
+        glVertex3f(0.0f, -6.0f, 0.0f);
+        glVertex3f(0.0f, 6.0f, 0.0f);
+    glEnd();
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glBegin(GL_LINES);
+        glVertex3f(0.0f, 0.0f, -6.0f);
+        glVertex3f(0.0f, 0.0f, 6.0f);
+    glEnd();
+    glEnable(GL_LIGHTING);
+    glMatrixMode(GL_MODELVIEW);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDisable(GL_LIGHTING);
     glPushMatrix(); // IDENTITY AXIS AXIS
 
     // ##################AIRPLANE##################
 
-    GLfloat lightpos[] = {0.0, 0.0, 1.0, 0.0};
-    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+
     // ##################MATERIALS##################
 
     GLfloat amb[]  = {1.0f, 1.0f, 1.0f};
@@ -371,7 +373,7 @@ void CCanvas::paintGL()
     plane.objects[0].draw();
     glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
 
-    View views[8] = {View::L_Wheel, R_Wheel, R_Flap, L_Flap, Back, L_B_Flap, R_B_Flap, Propeller};
+    static View views[8] = {View::L_Wheel, R_Wheel, R_Flap, L_Flap, Back, L_B_Flap, R_B_Flap, Propeller};
     for(int i = 0; i < 8; i++){
         setView(views[i]);
         plane.objects[i+1].draw();
@@ -382,21 +384,39 @@ void CCanvas::paintGL()
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
     popandpush(); // IDENTITY AXIS AXIS
 
-    textureWater.bind();
-    tree.objects[0].draw();
+    textureLane.bind(); // LANE
+    static float move = 0.0;
+    move += 0.02;
+    glTranslated(-1.0,0.01,0.0);
+    scene.objects[0].draw();
+    popandpush();
+    textureLane.unbind();
+
+    textureWater.bind(); // WATER
+    scene.objects[2].draw();
     popandpush();
     textureWater.unbind();
 
-    textureMountain.bind();
-    tree.objects[2].draw();
+    textureTree.bind(); // TREE
+    scene.objects[1].draw();
     popandpush();
-    textureMountain.unbind();
+    textureTree.unbind();
 
-    textureGrass.bind();
-    tree.objects[1].draw();
+    textureTree.bind(); // TREE
+    glTranslated(1.0,0,0);
+    scene.objects[1].draw();
+    popandpush();
+    textureTree.unbind();
+
+    textureGrass.bind(); // GRASS
+    scene.objects[3].draw();
     popandpush();
     textureGrass.unbind();
 
+    textureMountain.bind();  // MOUNTAIN
+    scene.objects[4].draw();
+    popandpush();
+    textureMountain.unbind();
 
     glPopMatrix(); // IDENTITY AXIS
     glPopMatrix(); // IDENTITY

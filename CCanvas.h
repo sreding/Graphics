@@ -34,7 +34,9 @@ public:
         texturePlane(readfile()),
         textureGrass(readfile()),
         textureMountain(readfile()),
-        textureWater(readfile())
+        textureWater(readfile()),
+        textureLane(readfile()),
+        textureTree(readfile())
     {
         QTimer *timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(updateGL()));
@@ -95,7 +97,7 @@ private:
     void setView(View _view);
 
     // Models and textures
-    Texture texturePlane,textureGrass,textureMountain,textureWater;
+    Texture texturePlane,textureGrass,textureMountain,textureWater,textureLane, textureTree;
 
 
 };
