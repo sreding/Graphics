@@ -6,3 +6,4 @@ path.txt
 *.app
 *.blend1
 *.mtl
+.qmake.stash
