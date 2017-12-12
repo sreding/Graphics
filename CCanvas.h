@@ -99,7 +99,8 @@ private:
         Left,
         Right,
         Up,
-        Down
+        Down,
+        Circle
     };
 
     void setView(View _view);
