@@ -7,6 +7,7 @@
 using namespace std;
 static ObjectGroup scene("");
 static ObjectGroup plane("");
+static CCanvas::CamView camView;
 //-----------------------------------------------------------------------------
 
 void CCanvas::initializeGL()
@@ -55,6 +56,7 @@ void CCanvas::initializeGL()
 
 //    CCanvas::rotateScene = false;
     grabKeyboard();
+    camView = Still;
 }
 
 //-----------------------------------------------------------------------------
@@ -171,7 +173,10 @@ bool CCanvas::event(QEvent *event){
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_R) {
-//            glTranslatef(0.0, -3.0, -10.0);
+            qDebug() << "R";
+            camView = CCanvas::Rotate;
+//            CCanvas::camView = Rotate;
+//            rotateScene = !rotateScene;
             return true;
     }}
 
@@ -180,9 +185,9 @@ bool CCanvas::event(QEvent *event){
 void setmainaxis(float x, float y){
     static float distance_camera = -20;
     static float axis_rotate = 0.0;
-    static bool rotateScene = true;
 
-    if(rotateScene){
+
+    if(camView == CCanvas::Rotate){
         axis_rotate+=0.2;
     }
 

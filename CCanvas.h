@@ -11,6 +11,7 @@
 #include <QtOpenGL>
 #include <QGLWidget>
 #include <QTimer>
+#include <QDebug>
 
 
 #include "Base.h"
@@ -46,6 +47,11 @@ public:
         pathToFile[1] = readfile(); // plane
     }
     bool event(QEvent *event);
+    enum CamView {
+        Still = 0,
+        Rotate,
+        Plane
+    };
 
 
 protected:
@@ -55,6 +61,7 @@ protected:
 
 
 private:
+
     void lookAt(const GLdouble eyex,
                 const GLdouble eyey,
                 const GLdouble eyez,
@@ -96,6 +103,7 @@ private:
         L_Wheel,
         R_Wheel
     };
+
     enum Path {
         Start = 0,
         Land,
@@ -105,6 +113,7 @@ private:
         Down,
         Circle
     };
+//    CamView camView;
 
     void setView(View _view);
 
