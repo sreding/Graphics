@@ -63,8 +63,8 @@ void CCanvas::initializeGL()
     textureLane.setTexture();
     textureTree.setTexture();
 
-
-
+//    CCanvas::rotateScene = false;
+    grabKeyboard();
 }
 
 //-----------------------------------------------------------------------------
@@ -192,9 +192,25 @@ void CCanvas::resizeGL(int width, int height)
 
 //-----------------------------------------------------------------------------
 
+bool CCanvas::event(QEvent *event){
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_R) {
+            glTranslatef(0.0, -3.0, -10.0);
+            return true;
+    }}
+
+    return QWidget::event(event);
+}
 void setmainaxis(float x, float y){
     static float axis_rotate = 0.0;
-    axis_rotate+=0.2;
+    static bool rotateScene = true;
+
+    if(rotateScene){
+        axis_rotate+=0.2;
+    }
+
+
 //    glTranslatef(-x, -3.0 - y, -10.0); // put in the axis
     glTranslatef(0.0, -3.0, -10.0); // put in the axis
     float scaleFactor = 2.0f;

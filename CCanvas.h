@@ -12,6 +12,7 @@
 #include <QGLWidget>
 #include <QTimer>
 
+
 #include "Base.h"
 #include "texture.hpp"
 
@@ -44,12 +45,14 @@ public:
         pathToFile[0]= readfile(); // scene
         pathToFile[1] = readfile(); // plane
     }
+    bool event(QEvent *event);
 
 
 protected:
     void initializeGL();
     void resizeGL(int width, int height);
     void paintGL();
+
 
 private:
     void lookAt(const GLdouble eyex,
