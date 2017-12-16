@@ -7,6 +7,7 @@
 using namespace std;
 static ObjectGroup scene("");
 static ObjectGroup plane("");
+static CCanvas::CamView camView;
 //-----------------------------------------------------------------------------
 
 void CCanvas::initializeGL()
@@ -31,23 +32,13 @@ void CCanvas::initializeGL()
      * light in eye coordinates, and attenuation is enabled. The default position is (0,0,1,0); thus,
      * the default light source is directional, parallel to, and in the direction of the -z axis.
      */
-    GLfloat lightpos[] = {0.0, 0.0, 1.0, 0.0};
-    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-    GLfloat lightAmb[]  = {0.4, 0.4, 0.4};
-    GLfloat lightDiff[] = {0.5, 0.5, 0.5};
-    GLfloat lightSpec[] = {0.6, 0.6, 0.6};
-
-    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpec);
-    glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmb);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiff);
-
-//    GLfloat ambient[] =  { 0.0, 0.0, 0.0, 1.0 };
-//    GLfloat diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
-//    GLfloat specular[] = { 0.0, 1.0, 1.0, 1.0 };
-//    glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
-//    glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
-//    glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
+    GLfloat ambient[] =  { 0.3, 0.3, 0.3, 0.0 };
+    GLfloat diffuse[] =  { 1.0, 1.0, 1.0, 0.0 };
+    GLfloat specular[] = { 1.0, 1.0, 1.0, 0.0 };
+    glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
+    glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
 
     loadOBJ(pathToFile[0],scene);
     loadOBJ(pathToFile[1],plane);
@@ -63,8 +54,9 @@ void CCanvas::initializeGL()
     textureLane.setTexture();
     textureTree.setTexture();
 
-
-
+//    CCanvas::rotateScene = false;
+    grabKeyboard();
+    camView = Still;
 }
 
 //-----------------------------------------------------------------------------
@@ -111,51 +103,36 @@ void CCanvas::lookAt(const GLdouble eyex,
                      const GLdouble upy,
                      const GLdouble upz)
 {
-    GLdouble *mat = new GLdouble[16];
+    Point3d VP(eyex, eyey, eyez);
+          Point3d q(centerx, centery, centerz);
+          Point3d VUP(upx, upy, upz);
+          Point3d VPN = VP-q;
 
-    // TODO: add computation for the lookat here!
-    Point3d X, Y, Z;
+        GLdouble *mat = new GLdouble[16];							// remember: column-major order!
 
-    // create new coordinate system
-    Z = Point3d(eyex - centerx, eyey - centery, eyez - centerz);
-    Z.normalize();
+        Point3d zp = VPN / VPN.norm();
+        Point3d xp = (VUP ^ zp)/(VUP ^ zp).norm();
+        Point3d yp = (zp ^ xp);
+          mat[0] = xp.x();
+          mat[1] = yp.x();
+          mat[2] = zp.x();
+          mat[3] = 0;
+          mat[4] = xp.y();
+          mat[5] = yp.y();
+          mat[6] = zp.y();
+          mat[7] = 0;
+          mat[8] = xp.z();
+          mat[9] = yp.z();
+          mat[10] = zp.z();
+          mat[11] = 0;
+          mat[12] = xp*VP;
+          mat[13] = yp*VP;
+          mat[14] = zp*VP;
+          mat[15] = 1;
 
-    // compute Y and X
-    Y = Point3d(upx, upy, upz);
-    X = Y ^ Z;
+      glMultMatrixd(mat);
 
-    // recompute X
-    Y = Z ^ X;
-
-    // normalize
-    X.normalize();
-    Y.normalize();
-
-    Point3d eye(eyex, eyey, eyez);
-
-    mat[0] = X.x();
-    mat[1] = X.y();
-    mat[2] = X.z();
-    mat[3] = -X * eye;
-
-    mat[4] = Y.x();
-    mat[5] = Y.y();
-    mat[6] = Y.z();
-    mat[7] = -Y * eye;
-
-    mat[8]  = Z.x();
-    mat[9]  = Z.y();
-    mat[10] = Z.z();
-    mat[11] = -Z * eye;
-
-    mat[12] = 0.0;
-    mat[13] = 0.0;
-    mat[14] = 0.0;
-    mat[15] = 1.0;
-
-    glMultMatrixd(mat);
-
-    delete[] mat;
+      delete[] mat;
 }
 
 void CCanvas::resizeGL(int width, int height)
@@ -164,7 +141,7 @@ void CCanvas::resizeGL(int width, int height)
     glViewport(0, 0, width, height);
 
     // vertical camera opening angle
-    double beta = 60.0;
+    double beta = 80.0;
 
     // aspect ratio
     double gamma;
@@ -192,12 +169,36 @@ void CCanvas::resizeGL(int width, int height)
 
 //-----------------------------------------------------------------------------
 
+bool CCanvas::event(QEvent *event){
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_R) {
+            qDebug() << "R";
+            camView = CCanvas::Rotate;
+//            CCanvas::camView = Rotate;
+//            rotateScene = !rotateScene;
+            return true;
+    }}
+
+    return QWidget::event(event);
+}
 void setmainaxis(float x, float y){
+    static float distance_camera = -20;
     static float axis_rotate = 0.0;
-    axis_rotate+=0.2;
-//    glTranslatef(-x, -3.0 - y, -10.0); // put in the axis
+
+
+    if(camView == CCanvas::Rotate){
+        axis_rotate+=0.2;
+    }
+
+
+
     glTranslatef(0.0, -3.0, -10.0); // put in the axis
-    float scaleFactor = 3.0f;
+
+    GLfloat lightpos[] = {0.0, 4.0, distance_camera, 1.0};
+    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+    glTranslatef(0.0, -4.0, distance_camera); // put in the axis
+    float scaleFactor = 2.0f;
     glScaled(scaleFactor,scaleFactor,scaleFactor);
     glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f); // rotate orizontally
 }
@@ -211,19 +212,26 @@ void rotatepropeller(float acc){
         propeller *= 1.2;
         propeller = fmod(propeller,10000000);
     }
-//    propeller = fmod(propeller,360);
     glTranslatef(0.0, 0.0, -3.4); // move in proper position
     glRotated(propeller,0.0,0.0,1.0);
 }
 
 
 void CCanvas::setView(View _view) {
-    static float x = -4;
-    static float y = 1;
+    static bool tookoff =false;
+    static float x = -4.5;
+    static float y = 0.1;
+    static float z = 0.0;
     static float acc = 0.01;
-    static int plane_state = 1;
-//    game_tick++;
-    static Path path[6] = {Start, Land,Right, Left, Up, Down};
+    static float radius = 3.0;
+    static float centerx = 0.0;
+    static float centerz = 0.0;
+    static float curve = 0.2;
+    static float angle = 0.0;
+    static bool reached_max = false;
+    static bool check = true;
+    static int plane_state = 0;
+    static Path path[7] = {Start, Land,Circle,Right, Left, Up, Down};
 
     switch(_view) {
         case Axis:
@@ -234,30 +242,101 @@ void CCanvas::setView(View _view) {
             switch(path[plane_state]){
                 case Start: {
                         x+=acc;
-                        acc *=1.0175;
+                        acc *=1.0075;
                         if(x <= 1){
-                           y = 0;
+                           y = 0.2;
                         }else{
-                            if(y < 2)
-                                y =  x * x * 0.005;
+                            if(y < 2){
+                                y =   max(x * x * 0.05, 0.2);
 
+                            }else{
+                                tookoff =true;
+                                plane_state = 2;
+                            }
                         }
+                        float high_show = 1.5;
+                        glTranslatef(x,y, z); // put in the axis
+                        static float rotate_show = 0.0;
+//                        rotate_show += 0.2;
+                        glRotated(270, 0.0,1.0,0.0);
+                        glRotated(15 + rotate_show, 1.0,0.0,0.0);
                         break;
                     }
-            case Land:{
+            case Land:{// needs more
                         x+=acc;
-                        acc *=1.0175;
+                        acc *=0.9;
                         if(x <= 1){
-                           y = 0;
+                           y = 10;
                         }else{
-                            if(y < 2)
-                                y =  x * x * -0.005;
+                            if(y < 6)
+                                y =  x * x * -0.05;
 
                         }
                         break;
                     }
                 case Left:
-                    x++;
+
+                    x = x-0.2;
+                    z = z-0.2;
+                    if(reached_max && curve > 0.0){
+                        curve -=0.2;
+                        angle += 0.1;
+                    }else if(curve > 10){
+                        reached_max = true;
+                    }else if(curve < 0.0){
+                        reached_max = false;
+                        curve = 0.2;
+                        //set next path
+                        plane_state = 0;
+                    }else{
+                        curve += 0.2;
+                        angle += 0.1;
+                    }
+//                    glRotatef(curve*9,4.0,0.0,0.0);
+//                    y =   x * x * 0.05;
+                    glTranslatef(x,y, z); // put in the axis
+                    glRotated(angle *9,-1.0,1.0,1.0);
+                    glRotated(270, 0.0,1.0,0.0);
+                    glRotated(15, 1.0,0.0,0.0);
+
+                    break;
+                case Circle:
+                    if(check){
+                        centerz = -z-radius;
+                        centerx = -x;
+                        acc = 1.5;
+                        check = false;
+                    }
+
+                    x = -(centerx + (radius * cos(acc)));
+                    z = (centerz + (radius * sin(acc)));
+                    if(reached_max && curve > 0.0){
+//                        curve -=0.2;
+                        angle += 0.016;
+
+                    }else if(curve > 10){
+                        reached_max = true;
+                    }else if(curve < 0.0){
+                        reached_max = false;
+                        curve = 0.2;
+                        //set next path
+                        plane_state = 0;
+                    }else{
+                        curve += 0.05;
+                        angle += 0.016;
+
+                    }
+                    acc += 0.01;
+
+    //                    y =   x * x * 0.05;
+                    glTranslatef(x,y, z); // put in the axis
+
+                    glRotated(270, 0.0,1.0,0.0);
+
+                    glRotated(angle *36,0.0,1.0,0.0);
+                    glRotatef(curve*4.5,0.0,0.0,1.0);
+                    glRotated(15, 1.0,0.0,0.0);
+
                     break;
                 case Right:
                     x--;
@@ -270,9 +349,7 @@ void CCanvas::setView(View _view) {
                     break;
 
             }
-            glTranslatef(x,y, 0); // put in the axis
-            glRotated(270, 0.0,1.0,0.0);
-            glRotated(15, 1.0,0.0,0.0);
+
             glScaled(0.1,0.1,0.1);
             break;
         }
@@ -283,7 +360,7 @@ void CCanvas::setView(View _view) {
 
         case L_Wheel:
             static float l_wheel = 3.4;
-            if(l_wheel > 0.0)
+            if(l_wheel > 0.0 && tookoff)
                 l_wheel -= 0.05;
             glTranslated(-2.2,-0.3,-1.6); // l wheel
             glRotated(-5, 0.0,1.0,0.0);
@@ -292,7 +369,7 @@ void CCanvas::setView(View _view) {
 
         case R_Wheel:
             static float r_wheel = 3.4;
-            if(r_wheel > 0.0)
+            if(r_wheel > 0.0 && tookoff)
                 r_wheel -= 0.05;
             glTranslated(2.2,-0.3,-1.6); // r wheel
             glRotated(5, 0.0,1.0,0.0);
@@ -354,6 +431,9 @@ void CCanvas::paintGL()
     // set model-view matrix
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    static float position = 0.0;
+//    position += 0.02;
+//    lookAt(sin(position),cos(position),0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
     lookAt(0,0,0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
 
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -365,9 +445,6 @@ void CCanvas::paintGL()
 
 
 //    ##################LIGHT##################
-    GLfloat lightpos[] = { 1, 1, -10.0,1.0 };
-    glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
-
 
 //    ##################AXES##################
  setView(View::Axis);
@@ -395,9 +472,7 @@ void CCanvas::paintGL()
 
     // ##################AIRPLANE##################
 
-
     // ##################MATERIALS##################
-
     GLfloat amb[]  = {1.0f, 1.0f, 1.0f};
     GLfloat diff[] = {0.7f, 0.7f, 0.7f};
     GLfloat spec[] = {0.1f, 0.1f, 0.1f};
@@ -424,37 +499,42 @@ void CCanvas::paintGL()
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
     popandpush(); // IDENTITY AXIS AXIS
 
+    static float scaleplane = 2.0;
     textureLane.bind(); // LANE
     glTranslated(0.0,0.01,0.0);
+    glScaled(scaleplane,scaleplane,scaleplane);
     scene.objects[0].draw();
     popandpush();
     textureLane.unbind();
 
     textureWater.bind(); // WATER
+    glScaled(scaleplane,scaleplane,scaleplane);
     scene.objects[2].draw();
     popandpush();
     textureWater.unbind();
 
 
         textureTree.bind(); // TREE
-        glTranslated(0,0,0);
+        glScaled(scaleplane,scaleplane,scaleplane);
         scene.objects[1].draw();
         popandpush();
         textureTree.unbind();
     for(int i =5; i < 12; i++){
         textureTree.bind(); // TREE
-        glTranslated(0,0,0);
+        glScaled(scaleplane,scaleplane,scaleplane);
         scene.objects[i].draw();
         popandpush();
         textureTree.unbind();
     }
 
     textureGrass.bind(); // GRASS
+    glScaled(scaleplane,scaleplane,scaleplane);
     scene.objects[3].draw();
     popandpush();
     textureGrass.unbind();
 
     textureMountain.bind();  // MOUNTAIN
+    glScaled(scaleplane,scaleplane,scaleplane);
     scene.objects[4].draw();
     popandpush();
     textureMountain.unbind();

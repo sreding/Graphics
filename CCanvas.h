@@ -11,6 +11,8 @@
 #include <QtOpenGL>
 #include <QGLWidget>
 #include <QTimer>
+#include <QDebug>
+
 
 #include "Base.h"
 #include "texture.hpp"
@@ -44,6 +46,12 @@ public:
         pathToFile[0]= readfile(); // scene
         pathToFile[1] = readfile(); // plane
     }
+    bool event(QEvent *event);
+    enum CamView {
+        Still = 0,
+        Rotate,
+        Plane
+    };
 
 
 protected:
@@ -51,7 +59,9 @@ protected:
     void resizeGL(int width, int height);
     void paintGL();
 
+
 private:
+
     void lookAt(const GLdouble eyex,
                 const GLdouble eyey,
                 const GLdouble eyez,
@@ -93,14 +103,17 @@ private:
         L_Wheel,
         R_Wheel
     };
+
     enum Path {
         Start = 0,
         Land,
         Left,
         Right,
         Up,
-        Down
+        Down,
+        Circle
     };
+//    CamView camView;
 
     void setView(View _view);
 
