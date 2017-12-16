@@ -408,8 +408,9 @@ void CCanvas::paintGL()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     static float position = 0.0;
-    position += 0.02;
-    lookAt(sin(position),cos(position),0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
+//    position += 0.02;
+//    lookAt(sin(position),cos(position),0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
+    lookAt(0,0,0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
 
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
