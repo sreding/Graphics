@@ -9,7 +9,8 @@ static ObjectGroup scene("");
 static ObjectGroup plane("");
 static CCanvas::CamView camView;
 //-----------------------------------------------------------------------------
-
+Point3d camera_position(0.0f, 0.0f, 0.0f);
+Point3d camera_direction(0.0f,0.0f,-1.0f);
 void CCanvas::initializeGL()
 {
     glClearColor(0.0f, 0.8f, 0.8f, 0.5f);			   // black background
@@ -93,46 +94,56 @@ void CCanvas::glPerspective(const GLdouble fovy, const GLdouble aspect, const GL
     delete[] mat;
 }
 
-void CCanvas::lookAt(const GLdouble eyex,
-                     const GLdouble eyey,
-                     const GLdouble eyez,
-                     const GLdouble centerx,
-                     const GLdouble centery,
-                     const GLdouble centerz,
-                     const GLdouble upx,
-                     const GLdouble upy,
-                     const GLdouble upz)
+void CCanvas::lookAt(const GLdouble eyeX,
+                     const GLdouble eyeY,
+                     const GLdouble eyeZ,
+                     const GLdouble centerX,
+                     const GLdouble centerY,
+                     const GLdouble centerZ,
+                     const GLdouble upX,
+                     const GLdouble upY,
+                     const GLdouble upZ)
 {
-    Point3d VP(eyex, eyey, eyez);
-          Point3d q(centerx, centery, centerz);
-          Point3d VUP(upx, upy, upz);
-          Point3d VPN = VP-q;
+    Point3d VP(eyeX, eyeY, eyeZ);
+    Point3d q(centerX, centerY, centerZ);
+    Point3d VUP(upX, upY, upZ);
+    Point3d VPN = VP - q;
 
-        GLdouble *mat = new GLdouble[16];							// remember: column-major order!
+    GLdouble *mat = new GLdouble[16]; // remember: column-major order!
 
-        Point3d zp = VPN / VPN.norm();
-        Point3d xp = (VUP ^ zp)/(VUP ^ zp).norm();
-        Point3d yp = (zp ^ xp);
-          mat[0] = xp.x();
-          mat[1] = yp.x();
-          mat[2] = zp.x();
-          mat[3] = 0;
-          mat[4] = xp.y();
-          mat[5] = yp.y();
-          mat[6] = zp.y();
-          mat[7] = 0;
-          mat[8] = xp.z();
-          mat[9] = yp.z();
-          mat[10] = zp.z();
-          mat[11] = 0;
-          mat[12] = xp*VP;
-          mat[13] = yp*VP;
-          mat[14] = zp*VP;
-          mat[15] = 1;
+    // set up the LookAt matrix correctly!
+    Point3d p_prime = VP;
+    Point3d z_prime = VPN.normalized();
+    Point3d x_prime = (VUP ^ z_prime).normalized();
+    Point3d y_prime = z_prime ^ x_prime;
 
-      glMultMatrixd(mat);
+    // column 1
+    mat[0] = x_prime[0];
+    mat[1] = y_prime[0];
+    mat[2] = z_prime[0];
+    mat[3] = 0;
 
-      delete[] mat;
+    // column 2
+    mat[4] = x_prime[1];
+    mat[5] = y_prime[1];
+    mat[6] = z_prime[1];
+    mat[7] = 0;
+
+    // column 3
+    mat[8] = x_prime[2];
+    mat[9] = y_prime[2];
+    mat[10] = z_prime[2];
+    mat[11] = 0;
+
+    // sure? column 4
+    mat[12] = -x_prime * p_prime;
+    mat[13] = -y_prime * p_prime;
+    mat[14] = -z_prime * p_prime;
+    mat[15] = 1;
+
+    glMultMatrixd(mat);
+
+    delete[] mat;
 }
 
 void CCanvas::resizeGL(int width, int height)
@@ -168,6 +179,21 @@ void CCanvas::resizeGL(int width, int height)
 }
 
 //-----------------------------------------------------------------------------
+Point2d lastPos(0.0f,0.0f);
+bool delta_defined = false;
+void rotatePointY(Point3d *p, float alpha){
+    float x = cos(alpha)*p->x() + sin(alpha)*p->z();
+    float z = -sin(alpha)*p->x()+ cos(alpha)*p->z();
+    p->x() = x;
+    p->z() = z;
+}
+void rotatePointX(Point3d *p, float alpha){
+    float y = cos(alpha)*p->y() - sin(alpha)*p->z();
+    float z = sin(alpha)*p->y()+ cos(alpha)*p->z();
+    p->y() = y;
+    p->z() = z;
+}
+
 
 bool CCanvas::event(QEvent *event){
     if (event->type() == QEvent::KeyPress) {
@@ -178,7 +204,34 @@ bool CCanvas::event(QEvent *event){
 //            CCanvas::camView = Rotate;
 //            rotateScene = !rotateScene;
             return true;
-    }}
+        }else if(ke->key() == Qt::Key_Right){
+            camera_position[0]-=0.2;
+        }else if(ke->key() == Qt::Key_Left){
+            camera_position[0]+=0.2;
+        }else if(ke->key() == Qt::Key_Up){
+            camera_position[2]+=0.2;
+        }else if(ke->key() == Qt::Key_Down){
+            camera_position[2]-=0.2;
+        }
+    }else if(event->type() == QEvent::MouseMove){
+        QMouseEvent *me = static_cast<QMouseEvent *>(event);
+        if(!delta_defined){
+            delta_defined = true;
+            lastPos.x() = me->x();
+            lastPos.y() = me->y();
+        }else{
+            float speed = 0.0001;
+            float dx = me->x() - lastPos.x();
+//            camera_direction.x() += dx*speed;
+            rotatePointY(&camera_direction,-dx*speed);
+            float dy = me->y() - lastPos.y();
+            rotatePointX(&camera_direction,-dy*speed);
+//            camera_direction.y() -= dy*speed;
+        }
+
+    }else if(event->type() == QEvent::MouseButtonRelease){
+        delta_defined = false;
+    }
 
     return QWidget::event(event);
 }
@@ -422,7 +475,25 @@ void popandpush(){
     glPopMatrix(); // IDENTITY AXIS MAIN_BODY
     glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
 }
+void printmodelview(float * position){
+    GLfloat matrix[16];
+    glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
+    for(int i=0; i < 16; i++){
+        cout<< matrix[i] << " ";
+    }
+    cout <<endl;
+//    position[0] = matrix[12];
+//    position[1] = matrix[13];
+//    position[2] = matrix[14];
 
+}
+
+void CCanvas::free_camera_lookat(){
+    lookAt(camera_position[0],camera_position[1],camera_position[2],
+            camera_position[0]+camera_direction[0],
+            camera_position[1]+camera_direction[1],
+            camera_position[2]+camera_direction[2],  0,1,0); // camera position , "look at" point , view-up vector
+}
 void CCanvas::paintGL()
 {
     // clear screen and depth buffer
@@ -430,12 +501,13 @@ void CCanvas::paintGL()
 
     // set model-view matrix
     glMatrixMode(GL_MODELVIEW);
+    printmodelview(0);
+
     glLoadIdentity();
     static float position = 0.0;
-//    position += 0.02;
+    position += 0.02;
 //    lookAt(sin(position),cos(position),0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
-    lookAt(0,0,0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
-
+    free_camera_lookat();
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
 
@@ -465,8 +537,8 @@ void CCanvas::paintGL()
 //        glVertex3f(0.0f, 0.0f, 6.0f);
 //    glEnd();
 //    glEnable(GL_LIGHTING);
-    glMatrixMode(GL_MODELVIEW);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//    glMatrixMode(GL_MODELVIEW);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glPushMatrix(); // IDENTITY AXIS AXIS
      glEnable(GL_LIGHTING);
 
