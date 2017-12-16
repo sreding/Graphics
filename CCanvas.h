@@ -45,7 +45,7 @@ public:
         timer->start(10);
         pathToFile[0]= readfile(); // scene
         pathToFile[1] = readfile(); // plane
-        pathToFile[2] = readfile();
+//        pathToFile[2] = readfile();
     }
     bool event(QEvent *event);
     enum CamView {
