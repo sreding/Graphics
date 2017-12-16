@@ -7,6 +7,7 @@
 using namespace std;
 static ObjectGroup scene("");
 static ObjectGroup plane("");
+static ObjectGroup Skybox("");
 static CCanvas::CamView camView;
 //-----------------------------------------------------------------------------
 Point3d camera_position(0.0f, 0.0f, 0.0f);
@@ -43,6 +44,7 @@ void CCanvas::initializeGL()
 
     loadOBJ(pathToFile[0],scene);
     loadOBJ(pathToFile[1],plane);
+    loadOBJ(pathToFile[2],plane);
 
     /*
      * Before you can use the texture you need to initialize it by calling the setTexture() method.
@@ -196,6 +198,7 @@ void rotatePointX(Point3d *p, float alpha){
 
 
 bool CCanvas::event(QEvent *event){
+    float moveSpeed = 0.2;
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_R) {
@@ -204,14 +207,15 @@ bool CCanvas::event(QEvent *event){
 //            CCanvas::camView = Rotate;
 //            rotateScene = !rotateScene;
             return true;
-        }else if(ke->key() == Qt::Key_Right){
+        }else if(ke->key() == Qt::Key_Right || ke->key() == Qt::Key_D ){
             camera_position[0]-=0.2;
-        }else if(ke->key() == Qt::Key_Left){
+        }else if(ke->key() == Qt::Key_Left || ke->key() == Qt::Key_A ){
             camera_position[0]+=0.2;
-        }else if(ke->key() == Qt::Key_Up){
-            camera_position[2]+=0.2;
-        }else if(ke->key() == Qt::Key_Down){
-            camera_position[2]-=0.2;
+        }else if(ke->key() == Qt::Key_Up || ke->key() == Qt::Key_W ){
+            camera_position += camera_direction.normalized()*moveSpeed;
+//            camera_position[2]-=0.2;
+        }else if(ke->key() == Qt::Key_Down || ke->key() == Qt::Key_S ){
+            camera_position -= camera_direction.normalized()*moveSpeed;
         }
     }else if(event->type() == QEvent::MouseMove){
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
@@ -501,7 +505,6 @@ void CCanvas::paintGL()
 
     // set model-view matrix
     glMatrixMode(GL_MODELVIEW);
-    printmodelview(0);
 
     glLoadIdentity();
     static float position = 0.0;

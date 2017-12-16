@@ -30,7 +30,7 @@ class CCanvas : public QGLWidget
   Q_OBJECT
 
 public:
-    const char *pathToFile[2];
+    const char *pathToFile[3];
 
     explicit CCanvas(QWidget *parent = 0) : QGLWidget(parent),
         texturePlane(readfile()),
@@ -45,6 +45,7 @@ public:
         timer->start(10);
         pathToFile[0]= readfile(); // scene
         pathToFile[1] = readfile(); // plane
+        pathToFile[2] = readfile();
     }
     bool event(QEvent *event);
     enum CamView {
@@ -71,6 +72,7 @@ private:
                 const GLdouble upx,
                 const GLdouble upy,
                 const GLdouble upz);
+    void free_camera_lookat();
 
     void glPerspective(const GLdouble fovy,
                        const GLdouble aspect,
