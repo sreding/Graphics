@@ -174,7 +174,10 @@ bool CCanvas::event(QEvent *event){
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_R) {
             qDebug() << "R";
-            camView = CCanvas::Rotate;
+            if(camView != CCanvas::Rotate){
+               camView = CCanvas::Rotate;
+            }
+
 //            CCanvas::camView = Rotate;
 //            rotateScene = !rotateScene;
             return true;
