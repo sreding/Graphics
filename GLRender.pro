@@ -23,7 +23,8 @@ HEADERS += ./Base.h \
            ./PlyModel.h \
            ./objloader.hpp \
            ./tinyply.h \
-    ObjectGroup.h
+    ObjectGroup.h \
+    genericmethods.h
 
 # Source files
 SOURCES += ./CCanvas.cpp \
@@ -35,6 +36,7 @@ SOURCES += ./CCanvas.cpp \
            ./objloader.cpp \
            ./tinyply.cpp \
     ObjectGroup.cpp \
+    genericmethods.cpp
 
 # Forms
 FORMS += ./GLRender.ui

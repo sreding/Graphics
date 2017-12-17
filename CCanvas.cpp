@@ -1,7 +1,7 @@
 #include "CCanvas.h"
 #include "Base.h"
 #include "Sphere.h"
-
+#include "genericmethods.h"
 #include "ObjectGroup.h"
 #include "objloader.hpp"
 using namespace std;
@@ -183,19 +183,6 @@ void CCanvas::lookAt(const GLdouble eyeX,
   //-----------------------------------------------------------------------------
   Point2d lastPos(0.0f,0.0f);
   bool delta_defined = false;
-  void rotatePointY(Point3d *p, float alpha){
-    float x = cos(alpha)*p->x() + sin(alpha)*p->z();
-    float z = -sin(alpha)*p->x()+ cos(alpha)*p->z();
-    p->x() = x;
-    p->z() = z;
-  }
-  void rotatePointX(Point3d *p, float alpha){
-    float y = cos(alpha)*p->y() - sin(alpha)*p->z();
-    float z = sin(alpha)*p->y()+ cos(alpha)*p->z();
-    p->y() = y;
-    p->z() = z;
-  }
-
 
   bool CCanvas::event(QEvent *event){
     float moveSpeed = 0.2;
@@ -240,49 +227,6 @@ void CCanvas::lookAt(const GLdouble eyeX,
     return QWidget::event(event);
   }
 
-  Point3d position(0.0,0.0,0.0);
-  Point3d rot_position(0.0,0.0,-1.0);
-
-  void updateposition(float x, float y, float z){
-    position[0] += x;
-    position[1] += y;
-    position[2] += z;
-    rot_position[0] += x;
-    rot_position[1] += y;
-    rot_position[2] += z;
-    //    cout << "camera position is translated: " << position[0] << " " << position[1] << " " << position[2] << endl;
-  }
-
-  void Translate(float x, float y, float z){
-    glTranslatef(x,y,z);
-    updateposition(x,y,z);
-  }
-
-  void rotatePointZ(Point3d *p, float alpha){
-    float x = cos(alpha)*p->x() - sin(alpha)*p->y();
-    float z = sin(alpha)*p->x()+ cos(alpha)*p->y();
-    p->x() = x;
-    p->z() = z;
-  }
-
-  void gRotate(float angle, float x, float y, float z){
-    if(x == 1){
-      glRotated(angle,1.0,0,0);
-      rotatePointX(&rot_position,angle);
-      cout << "rotate position is rot x: " << rot_position[0] << " " << rot_position[1] << " " << rot_position[2] << endl;
-    }
-
-    if(y == 1){
-      glRotated(angle,0.0,1.0,0);
-      rotatePointY(&rot_position,angle);
-      cout << "rotate position is rot y: " << rot_position[0] << " " << rot_position[1] << " " << rot_position[2] << endl;
-    }
-    if(z == 1){
-      glRotated(angle,0.0,0,1.0);
-      rotatePointZ(&rot_position,angle);
-      cout << "rotate position is rot z: " << rot_position[0] << " " << rot_position[1] << " " << rot_position[2] << endl;
-    }
-  }
 
 
   void setmainaxis(float x, float y){
@@ -296,31 +240,16 @@ void CCanvas::lookAt(const GLdouble eyeX,
     GLfloat lightpos[] = {0.0, 4.0, distance_camera, 1.0};
     glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-    //    Translate(0.0, -4.0, distance_camera);
     glTranslatef(0.0, -4.0, distance_camera);
-
     float scaleFactor = 2.0f;
-    glScaled(scaleFactor,scaleFactor,scaleFactor);
-
-    //    gRotate(90 + axis_rotate, 0.0f, 1.0f, 0.0f);
+    glScalef(scaleFactor,scaleFactor,scaleFactor);
     glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f);
-
-    rotatePointY(&rot_position, 90);
-    updateposition(0.0, -4.0, distance_camera);
   }
 
-  void rotatepropeller(float acc){
-    static float propeller = 0;
-    if(propeller>360){
-      propeller+=255;
-    }else{
-      propeller+=acc;
-      propeller *= 1.2;
-      propeller = fmod(propeller,10000000);
-    }
-    glTranslated(0.0, 0.0, -3.4); // move in proper position
-    glRotated(propeller,0.0,0.0,1.0);
-  }
+
+  GLfloat modelview_matrix[] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+
+
 
   void CCanvas::setView(View _view) {
     static bool tookoff =false;
@@ -346,7 +275,7 @@ void CCanvas::lookAt(const GLdouble eyeX,
       case Main_Body: {
         switch(path[plane_state]){
           case Start: {
-            //                        x+=acc;
+            x+=acc;
             acc *=1.0075;
             if(x <= 1){
               y = 0.2;
@@ -359,21 +288,12 @@ void CCanvas::lookAt(const GLdouble eyeX,
                 plane_state = 2;
               }
             }
-            float high_show = 1.5;
-            //                        Translate(x,y, z);
-            glTranslatef(x,y,z);
 
+            glTranslatef(x,y,z);
             static float rotate_show = 0.0;
-            //                        rotate_show += 0.2;
-            //                        gRotate(270, 0.0,1.0,0.0);
-            //                        gRotate(15 + rotate_show, 1.0,0.0,0.0);
+//            rotate_show += 0.2;
             glRotatef(270, 0.0,1.0,0.0);
             glRotatef(15 + rotate_show, 1.0,0.0,0.0);
-
-            rotatePointX(&rot_position, 15);
-            rotatePointY(&rot_position,270);
-            updateposition(x,y,z);
-
             break;
           }
           case Land:{// needs more
@@ -405,12 +325,13 @@ void CCanvas::lookAt(const GLdouble eyeX,
             curve += 0.2;
             angle += 0.1;
           }
-          //                    glRotatef(curve*9,4.0,0.0,0.0);
-          //                    y =   x * x * 0.05;
-          //                    Translate(x,y, z); // put in the axis
-          //                    gRotate(angle *9,-1.0,1.0,1.0);
-          //                    gRotate(270, 0.0,1.0,0.0);
-          //                    gRotate(15, 1.0,0.0,0.0);
+          // TODO
+//                    glRotatef(curve*9,4.0,0.0,0.0);
+//                    y =   x * x * 0.05;
+//                    Translate(x,y, z); // put in the axis
+//                    gRotate(angle *9,-1.0,1.0,1.0);
+//                    gRotate(270, 0.0,1.0,0.0);
+//                    gRotate(15, 1.0,0.0,0.0);
 
           break;
           case Circle:
@@ -440,7 +361,7 @@ void CCanvas::lookAt(const GLdouble eyeX,
 
           }
           acc += 0.01;
-
+            // TODO
           //                    y =   x * x * 0.05;
           //                    Translate(x,y, z); // put in the axis
           //                    gRotate(270, 0.0,1.0,0.0);
@@ -535,18 +456,7 @@ void CCanvas::lookAt(const GLdouble eyeX,
     glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
   }
 
-  void printmodelview(float * position){
-    GLfloat matrix[16];
-    glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
-    for(int i=0; i < 16; i++){
-      cout<< matrix[i] << " ";
-    }
-    cout <<endl;
-    //    position[0] = matrix[12];
-    //    position[1] = matrix[13];
-    //    position[2] = matrix[14];
 
-  }
 
   void CCanvas::free_camera_lookat(){
     lookAt(camera_position[0],camera_position[1],camera_position[2],
@@ -555,14 +465,11 @@ void CCanvas::lookAt(const GLdouble eyeX,
       camera_position[2]+camera_direction[2],  0,1,0); // camera position , "look at" point , view-up vector
     }
 
-    void resetposition(){
-      position[0] = 0;
-      position[1] = 0;
-      position[2] = 0;
-      rot_position[0] = 0;
-      rot_position[1] = 0;
-      rot_position[2] = 0;
-    }
+  void updatemodelview(float mod[]){
+      modelview_matrix[12] += mod[12];
+      modelview_matrix[13] += mod[13] + 0.3;
+      modelview_matrix[14] += mod[14];
+  }
 
     void CCanvas::paintGL()
     {
@@ -571,51 +478,23 @@ void CCanvas::lookAt(const GLdouble eyeX,
 
       // set model-view matrix
       glMatrixMode(GL_MODELVIEW);
-
-      glLoadIdentity();
-//      static float position = 0.0;
-//      position += 0.02;
-      //    lookAt(sin(position),cos(position),0,  0,0,-1,  0,1,0); // camera position , "look at" point , view-up vector
-      free_camera_lookat();
-      cout << "camera position " << position[0] << " " << position[1] << " " << position[2] << endl;
-      cout << "rotation position " << rot_position[0] << " " << rot_position[1] << " " << rot_position[2] << endl;
-      cout << "------------------------" << endl;
-      lookAt(position[0], position[1], position[2], rot_position[0], rot_position[1], rot_position[2],  0,1,0); // camera position , "look at" point , view-up vector
-      resetposition();
-
+      glEnable( GL_NORMALIZE );
       glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
       glEnable(GL_COLOR_MATERIAL);
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
       glPushMatrix(); // IDENTITY IDENTITY
+      glLoadIdentity();
+//      free_camera_lookat();
+      lookAt(modelview_matrix[12], modelview_matrix[13], modelview_matrix[14], modelview_matrix[12], modelview_matrix[13], modelview_matrix[14] -1  ,  0,1,0);
 
       //    ##################AXES##################
       setView(View::Axis);
-      //    glDisable(GL_LIGHTING);
-      //    glColor3f(1.0f, 0.0f, 0.0f);
-      //    glBegin(GL_LINES);
-      //        glVertex3f(-6.0f, 0.0f, 0.0f);
-      //        glVertex3f(6.0f, 0.0f, 0.0f);
-      //    glEnd();
-      //    glColor3f(0.0f, 1.0f, 0.0f);
-      //    glBegin(GL_LINES);
-      //        glVertex3f(0.0f, -6.0f, 0.0f);
-      //        glVertex3f(0.0f, 6.0f, 0.0f);
-      //    glEnd();
-      //    glColor3f(0.0f, 0.0f, 1.0f);
-      //    glBegin(GL_LINES);
-      //        glVertex3f(0.0f, 0.0f, -6.0f);
-      //        glVertex3f(0.0f, 0.0f, 6.0f);
-      //    glEnd();
-      //    glEnable(GL_LIGHTING);
-      //    glMatrixMode(GL_MODELVIEW);
-      //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//      showaxis();
       glPushMatrix(); // IDENTITY AXIS AXIS
       glEnable(GL_LIGHTING);
 
       // ##################AIRPLANE##################
-
-      // ##################MATERIALS##################
-      #if 1
       GLfloat amb[]  = {1.0f, 1.0f, 1.0f};
       GLfloat diff[] = {0.7f, 0.7f, 0.7f};
       GLfloat spec[] = {0.1f, 0.1f, 0.1f};
@@ -630,6 +509,9 @@ void CCanvas::lookAt(const GLdouble eyeX,
       setView(View::Main_Body);
       plane.objects[0].draw();
       glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
+      float model[16];
+      glGetFloatv (GL_MODELVIEW, model);
+      updatemodelview(model);
 
       static View views[8] = {View::L_Wheel, R_Wheel, R_Flap, L_Flap, Back, L_B_Flap, R_B_Flap, Propeller};
       for(int i = 0; i < 8; i++){
@@ -684,13 +566,5 @@ void CCanvas::lookAt(const GLdouble eyeX,
 
       glPopMatrix(); // IDENTITY AXIS
       glPopMatrix(); // IDENTITY
-
-      //     GLfloat matrix[16];
-      //     glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
-      //     for(int i=0; i < 16; i++){
-      //         cout << matrix[i] << " ";
-      //     }
-      //     cout << endl;
-      #endif
 
     }
