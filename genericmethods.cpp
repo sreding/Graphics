@@ -123,6 +123,7 @@ void popandpush(){
 }
 
 void rotatePointX(Point3d *p, float alpha){
+  alpha = alpha * PI / 180;
   float y = cos(alpha)*p->y() - sin(alpha)*p->z();
   float z = sin(alpha)*p->y()+ cos(alpha)*p->z();
   p->y() = y;
@@ -130,6 +131,7 @@ void rotatePointX(Point3d *p, float alpha){
 }
 
 void rotatePointY(Point3d *p, float alpha){
+  alpha = alpha * PI / 180;
   float x = cos(alpha)*p->x() + sin(alpha)*p->z();
   float z = -sin(alpha)*p->x()+ cos(alpha)*p->z();
   p->x() = x;
@@ -137,6 +139,7 @@ void rotatePointY(Point3d *p, float alpha){
 }
 
 void rotatePointZ(Point3d *p, float alpha){
+  alpha = alpha * PI / 180;
   float x = cos(alpha)*p->x() - sin(alpha)*p->y();
   float y = sin(alpha)*p->x()+ cos(alpha)*p->y();
   p->x() = x;
