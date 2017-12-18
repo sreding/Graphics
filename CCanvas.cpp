@@ -166,44 +166,45 @@ void CCanvas::setView(View _view) {
         // rotatePointY(&cockpit_direction, rotate_show);
         break;
       }
-      case Land:{
-        break;
-      }
-      case Left:
-        glTranslatef(x,y, z); // put in the axis
-        glRotated(angle *9,-1.0,1.0,1.0);
-        glRotated(270, 0.0,1.0,0.0);
-        glRotated(15, 1.0,0.0,0.0);
-        // rotatePointZ(&cockpit_direction,angle *9);
-        // rotatePointY(&cockpit_direction,angle *9);
-        // rotatePointX(&cockpit_direction,angle *9);
-        break;
-      case Circle:
-        // cout << "CIRCLE" << '\n';
+    case Straight:{
+      glTranslatef(x,y, z); // put in the axis
+      glRotated(270, 0.0,1.0,0.0);
+      glRotated(180,0.0,1.0,0.0);
+      glRotatef(curve*4.5,0.0,0.0,1.0);
+      glRotated(15, 1.0,0.0,0.0);
 
-        glTranslatef(x,y, z); // put in the axis
-        glRotated(270, 0.0,1.0,0.0);
-        glRotated(angle *36,0.0,1.0,0.0);
-        glRotatef(curve*4.5,0.0,0.0,1.0);
-        glRotated(15, 1.0,0.0,0.0);
-
-        // rotatePointY(&cockpit_direction, angle *36);
-        // rotatePointZ(&cockpit_direction, curve*4.5);
-
-        break;
-      case Right:
-      // cout << "RIGHT" << endl;
-
-        break;
-      case Up:
-      // cout << "UP" << endl;
-
-        break;
-      case Down:
-      // cout << "DOWN" << endl;
-
-        break;
+      break;
     }
+    case Land:
+      glTranslatef(x,y, z); // put in the axis
+      glRotated(270, 0.0,1.0,0.0);
+      glRotated(180,0.0,1.0,0.0);
+      glRotatef(curve*4.5,0.0,0.0,1.0);
+      glRotated(15, 1.0,0.0,0.0);
+      break;
+    case Left:
+      glTranslatef(x,y, z); // put in the axis
+      glRotated(270, 0.0,1.0,0.0);
+      glRotated(angle *36,0.0,1.0,0.0);
+      glRotatef(curve*4.5,0.0,0.0,1.0);
+      glRotated(15, 1.0,0.0,0.0);
+    break;
+
+    case Circle:
+      glTranslatef(x,y, z); // put in the axis
+      glRotated(270, 0.0,1.0,0.0);
+      glRotated(angle *36,0.0,1.0,0.0);
+      glRotatef(curve*4.5,0.0,0.0,1.0);
+      glRotated(15, 1.0,0.0,0.0);
+      break;
+    case Right:
+    // cout << "RIGHT" << endl;
+      break;
+    case Up:
+      break;
+    case Down:
+      break;
+  }
     glScaled(0.1,0.1,0.1);
     break;
   }
