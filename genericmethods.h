@@ -10,6 +10,7 @@ void printmodelview();
 void rotatePointX(Point3d *p, float alpha);
 void rotatePointY(Point3d *p, float alpha);
 void rotatePointZ(Point3d *p, float alpha);
+void rotatePointYRad(Point3d *p, float alpha);
 void initpaintgl();
 void setplanematerial();
 void initeverything();
