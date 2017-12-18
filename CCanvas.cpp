@@ -4,6 +4,7 @@
 #include "genericmethods.h"
 #include "ObjectGroup.h"
 #include "objloader.hpp"
+#include <time.h>
 using namespace std;
 
 static ObjectGroup scene("");
@@ -119,7 +120,12 @@ void CCanvas::setView(View _view) {
   static bool reached_max = false;
   static bool check = true;
   static int plane_state = 0;
-  static Path path[7] = {Start, Land,Circle,Right, Left, Up, Down};
+  static time_t begin_t = 0;
+  if(begin_t == 0){
+    begin_t = time(NULL);
+  }
+
+  static Path path[8] = {Start,Straight,Circle,Land,Right, Left, Up, Down};
   switch(_view) {
     case Axis:
       setmainaxis(x, y);
@@ -150,54 +156,100 @@ void CCanvas::setView(View _view) {
           glRotatef(15 + rotate_show, 1.0,0.0,0.0);
           break;
         }
-        case Land:{
-          x+=acc;
-          acc *=0.9;
-          if(x <= 1){
-            y = 10;
-          }else{
-            if(y < 6)
-            y =  x * x * -0.05;
+        case Straight:{
+          if(x < -5.5){
+            plane_state = 5;
           }
+          x -= 0.02;
+//          acc *=0.9;
+//          if(x <= 1){
+//            y = 10;
+//          }else{
+//            if(y < 6)
+//            y =  x * x * -0.05;
+//          }
+          if(curve > 0.0){
+              curve -= 0.2;
+          }
+          glTranslatef(x,y, z); // put in the axis
+          glRotated(270, 0.0,1.0,0.0);
+          glRotated(180,0.0,1.0,0.0);
+          glRotatef(curve*4.5,0.0,0.0,1.0);
+          glRotated(15, 1.0,0.0,0.0);
+
           break;
         }
-        case Left:
+        case Land:
+          if(tookoff){
+              tookoff = false;
+          }
+//          y -= 0.01;
+          x += 0.01;
+          acc *=0.9025;
+          if(y <= 0.2){
+            acc = 0.01;
+            y = 0.2;
 
-        x = x-0.2;
-        z = z-0.2;
-        if(reached_max && curve > 0.0){
-          curve -=0.2;
-          angle += 0.1;
-        }else if(curve > 10){
-          reached_max = true;
-        }else if(curve < 0.0){
-          reached_max = false;
-          curve = 0.2;
-          //set next path
-          plane_state = 0;
-        }else{
-          curve += 0.2;
-          angle += 0.1;
-        }
-        glTranslatef(x,y, z); // put in the axis
-        glRotated(angle *9,-1.0,1.0,1.0);
-        glRotated(270, 0.0,1.0,0.0);
-        glRotated(15, 1.0,0.0,0.0);
-        // rotatePointX(&cockpit_direction, 15);
-        // rotatePointY(&cockpit_direction, 270);
-        // rotatePointZ(&cockpit_direction,angle *9);
-        // rotatePointY(&cockpit_direction,angle *9);
-        // rotatePointX(&cockpit_direction,angle *9);
+            plane_state=0;
+          }else{
+              y -= 0.01;
+
+          }
+          glTranslatef(x,y, z); // put in the axis
+          glRotated(270, 0.0,1.0,0.0);
+          glRotated(180,0.0,1.0,0.0);
+          glRotatef(curve*4.5,0.0,0.0,1.0);
+          glRotated(15, 1.0,0.0,0.0);
+          break;
+        case Left:
+          if(check){
+
+            centerz = z+9.0;
+            centerx = x;
+            acc = 1.5;
+            curve = 0.0;
+            check = false;
+            reached_max = false;
+            angle = 5.0;
+          }
+
+          x = (centerx + (radius * cos(acc)));
+          z = -(centerz + (radius * sin(acc)));
+
+          if(reached_max && curve > 0.0){
+            curve -= 0.05;
+            angle += 0.016;
+          }else if(angle > 7.5){
+            reached_max = true;
+          }else{
+            curve += 0.05;
+            angle += 0.016;
+          }
+          if(curve < 0.0){
+            check = false;
+            plane_state = 3;
+          }
+          acc += 0.01;
+          glTranslatef(x,y, z); // put in the axis
+          glRotated(270, 0.0,1.0,0.0);
+          glRotated(angle *36,0.0,1.0,0.0);
+          glRotatef(curve*4.5,0.0,0.0,1.0);
+          glRotated(15, 1.0,0.0,0.0);
         break;
         case Circle:
           if(check){
+            curve = 0.2;
+            angle = 0.0;
+            reached_max = false;
             centerz = -z-radius;
             centerx = -x;
             acc = 1.5;
             check = false;
           }
+
           x = -(centerx + (radius * cos(acc)));
           z = (centerz + (radius * sin(acc)));
+
           if(reached_max && curve > 0.0){
             // curve -=0.2;
             angle += 0.016;
@@ -221,7 +273,11 @@ void CCanvas::setView(View _view) {
           // rotatePointX(&cockpit_direction, 15);
           // rotatePointZ(&cockpit_direction, curve*4.5);
           // rotatePointY(&cockpit_direction, 270 + angle *36);
-
+          if((time(NULL) - begin_t > 15) && angle < 15.1 && angle > 14.9){
+//                cout << "Angle: "<< angle << endl;
+                check = true;
+                plane_state = 1;
+          }
           break;
         case Right:
           x--;
@@ -245,6 +301,9 @@ void CCanvas::setView(View _view) {
       static float l_wheel = 3.4;
       if(l_wheel > 0.0 && tookoff)
         l_wheel -= 0.05;
+      if(!tookoff && l_wheel < 3.4){
+        l_wheel += 0.05;
+      }
       glTranslated(-2.2,-0.3,-1.6); // l wheel
       glRotated(-5, 0.0,1.0,0.0);
       glRotated(cos(l_wheel) * 50 + 33, 0.0,0.0,1.0);
@@ -254,6 +313,9 @@ void CCanvas::setView(View _view) {
       static float r_wheel = 3.4;
       if(r_wheel > 0.0 && tookoff)
         r_wheel -= 0.05;
+      if(!tookoff && r_wheel < 3.4){
+        r_wheel += 0.05;
+      }
       glTranslated(2.2,-0.3,-1.6); // r wheel
       glRotated(5, 0.0,1.0,0.0);
       glRotated(-cos(r_wheel) * 50 - 33, 0.0,0.0,1.0);

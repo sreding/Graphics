@@ -113,7 +113,8 @@ private:
         Right,
         Up,
         Down,
-        Circle
+        Circle,
+        Straight
     };
 //    CamView camView;
 
