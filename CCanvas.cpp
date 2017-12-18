@@ -47,9 +47,13 @@ bool CCanvas::event(QEvent *event){
         // rotateScene = !rotateScene;
         return true;
       }else if(ke->key() == Qt::Key_Right || ke->key() == Qt::Key_D ){
-        camera_position[0]-=0.2;
-      }else if(ke->key() == Qt::Key_Left || ke->key() == Qt::Key_A ){
         camera_position[0]+=0.2;
+      }else if(ke->key() == Qt::Key_Left || ke->key() == Qt::Key_A ){
+        camera_position[0]-=0.2;
+      }else if(ke->key() == Qt::Key_Q ){
+        camera_position[1]+=0.2;
+      }else if(ke->key() == Qt::Key_Z ){
+        camera_position[1]-=0.2;
       }else if(ke->key() == Qt::Key_Up || ke->key() == Qt::Key_W ){
         camera_position += camera_direction.normalized()*moveSpeed;
       }else if(ke->key() == Qt::Key_Down || ke->key() == Qt::Key_S ){
@@ -65,7 +69,7 @@ bool CCanvas::event(QEvent *event){
         lastPos.x() = me->x();
         lastPos.y() = me->y();
       }else{
-        float speed = 0.0001;
+        float speed = 0.005;
         float dx = me->x() - lastPos.x();
         //            camera_direction.x() += dx*speed;
         rotatePointY(&camera_direction,-dx*speed);
@@ -317,7 +321,7 @@ void CCanvas::paintGL()
   initpaintgl();
   glPushMatrix(); // IDENTITY IDENTITY
   glLoadIdentity();
-//      free_camera_lookat();
+  free_camera_lookat();
   if(cockpit){
       lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
         cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
