@@ -8,3 +8,4 @@ path.txt
 *.mtl
 .qmake.stash
 ui_GLRender.h
+script.sh
