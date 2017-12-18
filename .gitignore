@@ -7,3 +7,4 @@ path.txt
 *.blend1
 *.mtl
 .qmake.stash
+ui_GLRender.h
