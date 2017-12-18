@@ -238,6 +238,8 @@ void CCanvas::setView(View _view) {
               yy = max((x+acc) * (x+acc) * 0.05, 0.2);
             }
           }
+          x+=acc;
+          acc*=1.0075;
           // updateinaxis = false;
           glPushMatrix();
           glTranslatef(x+acc, yy, z);
@@ -256,8 +258,7 @@ void CCanvas::setView(View _view) {
           // cout << cockpit_direction.x() << " " << cockpit_direction.y() << " "  << cockpit_direction.z() << endl;
           glRotatef( 15, 1.0,0.0,0.0);
           // rotatePointY(&cockpit_direction, rotate_show);
-          x+=acc;
-          acc*=1.0075;
+
           break;
         }
         case Straight:{
