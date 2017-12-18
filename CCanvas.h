@@ -73,6 +73,15 @@ private:
                 const GLdouble upx,
                 const GLdouble upy,
                 const GLdouble upz);
+    void lookAt2(const GLdouble eyex,
+                const GLdouble eyey,
+                const GLdouble eyez,
+                const GLdouble centerx,
+                const GLdouble centery,
+                const GLdouble centerz,
+                const GLdouble upx,
+                const GLdouble upy,
+                const GLdouble upz);
     void free_camera_lookat();
 
     void glPerspective(const GLdouble fovy,
@@ -96,6 +105,7 @@ private:
 
     enum View {
         Main_Body = 0,
+        Main_Body_inv,
         Axis,
         Propeller,
         L_B_Flap,

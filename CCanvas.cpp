@@ -83,9 +83,9 @@ bool CCanvas::event(QEvent *event){
       }else{
         float speed = 0.1;
         float dx = me->x() - lastPos.x();
-        rotatePointY(&camera_direction,-dx*speed);
+        rotatePointY(&cockpit_direction,-dx*speed);
         float dy = me->y() - lastPos.y();
-        rotatePointX(&camera_direction,-dy*speed);
+        rotatePointX(&cockpit_direction,-dy*speed);
         lastPos.x()=me->x();
         lastPos.y()=me->y();
       }
@@ -119,6 +119,7 @@ void setmainaxis(float x, float y){
 
 void CCanvas::setView(View _view) {
   static bool tookoff =false;
+  static float yy;
   static float x = -4.5;
   static float y = 0.1;
   static float z = 0.0;
@@ -137,6 +138,72 @@ void CCanvas::setView(View _view) {
       setmainaxis(x, y);
       break;
 
+   case Main_Body_inv: {
+    switch(path[plane_state]){
+      case Start: {
+        // updateinaxis = false;
+        glPushMatrix();
+        glTranslatef(x+acc, yy, z);
+        glRotatef(270, 0.0,1.0,0.0);
+        glRotatef(15, 1.0,0.0,0.0);
+        float model[16];
+        glGetFloatv (GL_MODELVIEW, model);
+        updatemodelview(model);
+        glPopMatrix();
+
+        static float rotate_show =0.0;
+        // rotate_show+= 0.2;
+        glTranslatef(x,y,z);
+        glRotatef(270, 0.0,1.0,0.0);
+        // cout << rotate_show << endl;
+        // cout << cockpit_direction.x() << " " << cockpit_direction.y() << " "  << cockpit_direction.z() << endl;
+        glRotatef( 15, 1.0,0.0,0.0);
+        // rotatePointY(&cockpit_direction, rotate_show);
+        break;
+      }
+      case Land:{
+        break;
+      }
+      case Left:
+        glTranslatef(x,y, z); // put in the axis
+        glRotated(angle *9,-1.0,1.0,1.0);
+        glRotated(270, 0.0,1.0,0.0);
+        glRotated(15, 1.0,0.0,0.0);
+        // rotatePointZ(&cockpit_direction,angle *9);
+        // rotatePointY(&cockpit_direction,angle *9);
+        // rotatePointX(&cockpit_direction,angle *9);
+        break;
+      case Circle:
+        // cout << "CIRCLE" << '\n';
+
+        glTranslatef(x,y, z); // put in the axis
+        glRotated(270, 0.0,1.0,0.0);
+        glRotated(angle *36,0.0,1.0,0.0);
+        glRotatef(curve*4.5,0.0,0.0,1.0);
+        glRotated(15, 1.0,0.0,0.0);
+
+        // rotatePointY(&cockpit_direction, angle *36);
+        // rotatePointZ(&cockpit_direction, curve*4.5);
+
+        break;
+      case Right:
+      // cout << "RIGHT" << endl;
+
+        break;
+      case Up:
+      // cout << "UP" << endl;
+
+        break;
+      case Down:
+      // cout << "DOWN" << endl;
+
+        break;
+    }
+    glScaled(0.1,0.1,0.1);
+    break;
+  }
+
+
     case Main_Body: {
       switch(path[plane_state]){
         case Start: {
@@ -150,7 +217,7 @@ void CCanvas::setView(View _view) {
               plane_state = 2;
             }
           }
-          float yy = y;
+          yy = y;
           if(x+acc <= 1){
             yy = 0.2;
           }else{
@@ -346,9 +413,9 @@ void CCanvas::free_camera_lookat(){
   }
 
 void updatemodelview(float mod[]){
-    cockpit_view[0] += mod[12];
-    cockpit_view[1] += mod[13] + 0.3;
-    cockpit_view[2] += mod[14];
+    cockpit_view[0] = mod[12];
+    cockpit_view[1] = mod[13] + 0.3;
+    cockpit_view[2] = mod[14];
 }
 
 void CCanvas::paintGL()
@@ -364,22 +431,22 @@ void CCanvas::paintGL()
   glPopMatrix();
   glPushMatrix(); // IDENTITY IDENTITY
   glLoadIdentity();
-  free_camera_lookat();
-  if(cockpit){
-      cockpit_direction.normalize();
-      lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
-        cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
-        0,1,0);
-        // cout << cockpit_view[0] + cockpit_direction.x() << " " << cockpit_view[1] + cockpit_direction.y() << " "
-        // << cockpit_view[2] + cockpit_direction.z() << endl;
+//  free_camera_lookat();
+//  if(cockpit){
+//      cockpit_direction.normalize();
+//      lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
+//        cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
+//        0,1,0);
+//        // cout << cockpit_view[0] + cockpit_direction.x() << " " << cockpit_view[1] + cockpit_direction.y() << " "
+//        // << cockpit_view[2] + cockpit_direction.z() << endl;
 
-        // cout << cockpit_view[0] << " " << cockpit_view[1] << " "
-        // << cockpit_view[2] << endl;
+//        // cout << cockpit_view[0] << " " << cockpit_view[1] << " "
+//        // << cockpit_view[2] << endl;
 
-        cockpit_direction.x() = 0;
-        cockpit_direction.y() = 0;
-        cockpit_direction.z() = -1;
-  }
+////        cockpit_direction.x() = 0;
+////        cockpit_direction.y() = 0;
+////        cockpit_direction.z() = -1;
+//  }
 
   //    ##################AXES##################
   setView(View::Axis);
@@ -392,14 +459,27 @@ void CCanvas::paintGL()
 
   texturePlane.bind();
   setView(View::Main_Body);
+  float model[16];
+  glGetFloatv (GL_MODELVIEW, model);
+  updatemodelview(model);
+
+  glPopMatrix();
+  cockpit_direction.normalize();
+  glLoadIdentity();
+  lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
+    cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
+    0,1,0);
+  setView(View::Axis);
+  glPushMatrix();
+  setView(View::Main_Body_inv);
   plane.objects[0].draw();
   glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
-  if(!updateinaxis){
-    float model[16];
-    glGetFloatv (GL_MODELVIEW, model);
-    updatemodelview(model);
-    // printmodelview();
-  }
+//  if(!updateinaxis){
+//    float model[16];
+//    glGetFloatv (GL_MODELVIEW, model);
+//    updatemodelview(model);
+//    // printmodelview();
+//  }
 
   static View views[8] = {View::L_Wheel, R_Wheel, R_Flap, L_Flap, Back, L_B_Flap, R_B_Flap, Propeller};
   for(int i = 0; i < 8; i++){
