@@ -353,7 +353,6 @@ void updatemodelview(float mod[]){
 void CCanvas::paintGL()
 {
   initpaintgl();
-  rotatePointY(&camera_direction,10);
   glPushMatrix();
   glLoadIdentity();
   textureSky.bind();
