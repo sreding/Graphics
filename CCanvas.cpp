@@ -10,7 +10,7 @@ static ObjectGroup scene("");
 static ObjectGroup plane("");
 static ObjectGroup Skybox("");
 static CCanvas::CamView camView;
-static bool cockpit = false;
+static bool cockpit = true;
 //-----------------------------------------------------------------------------
 Point3d camera_position(0.0f, 0.0f, 0.0f);
 Point3d camera_direction(0.0f,0.0f,-1.0f);
@@ -37,28 +37,24 @@ void CCanvas::initializeGL(){
   grabKeyboard();
 }
 //-----------------------------------------------------------------------------
-float angleToZ(Point3d pos){
-    Point3d ez(0,0,-1);
-    Point3d n = pos.normalized();
-    n.y() = 0;
-    n.normalize();
-//    cout<<acos(ez*n)*57.2958<<'\n';
-    if(n.x()>0){
-        return acos(ez*n);
-    }
-    return -acos(ez*n);
-}
+
 bool CCanvas::event(QEvent *event){
   float moveSpeed = 0.2;
   switch (event->type()) {
     case QEvent::KeyPress : {
       QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-      if (ke->key() == Qt::Key_R) {
+      if (ke->key() == Qt::Key_Space) {
         // camView = CCanvas::Rotate;
         cockpit = !cockpit;
         // CCanvas::camView = Rotate;
         // rotateScene = !rotateScene;
         return true;
+      }
+      if(ke->key() == Qt::Key_R){
+        if(camView == CCanvas::Still)
+          camView = CCanvas::Rotate;
+        else
+          camView = CCanvas::Still;
       }
       if(cockpit == false){
         if(ke->key() == Qt::Key_Right || ke->key() == Qt::Key_D ){
@@ -89,11 +85,7 @@ bool CCanvas::event(QEvent *event){
         float dx = me->x() - lastPos.x();
         rotatePointY(&camera_direction,-dx*speed);
         float dy = me->y() - lastPos.y();
-        //rotate on z axis
-        float angle = angleToZ(camera_direction);
-        rotatePointYRad(&camera_direction,angle);
-        rotatePointX(&camera_direction,dy*speed);
-        rotatePointYRad(&camera_direction,-angle);
+        rotatePointX(&camera_direction,-dy*speed);
         lastPos.x()=me->x();
         lastPos.y()=me->y();
       }
@@ -109,7 +101,7 @@ bool CCanvas::event(QEvent *event){
 }
 
 void setmainaxis(float x, float y){
-  static float distance_camera = -25;
+  static float distance_camera = -15;
   static float axis_rotate = 0.0;
 
   if(camView == CCanvas::Rotate){
@@ -119,7 +111,7 @@ void setmainaxis(float x, float y){
   GLfloat lightpos[] = {0.0, 4.0, distance_camera, 1.0};
   glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-  glTranslatef(0.0, -4.0, distance_camera);
+  glTranslatef(0.0, -2.0, distance_camera);
   float scaleFactor = 2.0f;
   glScalef(scaleFactor,scaleFactor,scaleFactor);
   glRotatef(90 + axis_rotate, 0.0f, 1.0f, 0.0f);
@@ -176,14 +168,14 @@ void CCanvas::setView(View _view) {
           updatemodelview(model);
           glPopMatrix();
 
-          static float rotate_show = 0.0;
-          rotate_show += 0.2;
+          static float rotate_show =0.0;
+          // rotate_show+= 0.2;
           glTranslatef(x,y,z);
           glRotatef(270, 0.0,1.0,0.0);
-          // rotatePointY(&cockpit_direction, rotate_show);
           // cout << rotate_show << endl;
           // cout << cockpit_direction.x() << " " << cockpit_direction.y() << " "  << cockpit_direction.z() << endl;
           glRotatef( 15, 1.0,0.0,0.0);
+          // rotatePointY(&cockpit_direction, rotate_show);
           x+=acc;
           acc*=1.0075;
           break;
@@ -222,8 +214,6 @@ void CCanvas::setView(View _view) {
           glRotated(angle *9,-1.0,1.0,1.0);
           glRotated(270, 0.0,1.0,0.0);
           glRotated(15, 1.0,0.0,0.0);
-          // rotatePointX(&cockpit_direction, 15);
-          // rotatePointY(&cockpit_direction, 270);
           // rotatePointZ(&cockpit_direction,angle *9);
           // rotatePointY(&cockpit_direction,angle *9);
           // rotatePointX(&cockpit_direction,angle *9);
@@ -259,28 +249,23 @@ void CCanvas::setView(View _view) {
           glRotated(angle *36,0.0,1.0,0.0);
           glRotatef(curve*4.5,0.0,0.0,1.0);
           glRotated(15, 1.0,0.0,0.0);
-          rotatePointY(&cockpit_direction, 270 + angle *36);
-          rotatePointZ(&cockpit_direction, curve*4.5);
-          rotatePointX(&cockpit_direction, 15);
 
-          // rotatePointY(&cockpit_direction, 270 + angle *36);
+          // rotatePointY(&cockpit_direction, angle *36);
+          // rotatePointZ(&cockpit_direction, curve*4.5);
 
           break;
         case Right:
         // cout << "RIGHT" << endl;
-
           updateinaxis = false;
           x--;
           break;
         case Up:
         // cout << "UP" << endl;
-
           updateinaxis = false;
           y++;
           break;
         case Down:
         // cout << "DOWN" << endl;
-
           updateinaxis = false;
           y--;
           break;
@@ -361,9 +346,9 @@ void CCanvas::free_camera_lookat(){
   }
 
 void updatemodelview(float mod[]){
-    cockpit_view[0] = mod[12];
-    cockpit_view[1] = mod[13] + 0.3;
-    cockpit_view[2] = mod[14];
+    cockpit_view[0] += mod[12];
+    cockpit_view[1] += mod[13] + 0.3;
+    cockpit_view[2] += mod[14];
 }
 
 void CCanvas::paintGL()
@@ -374,24 +359,26 @@ void CCanvas::paintGL()
   textureSky.bind();
   free_camera_lookat();
   glScalef(100,100,100);
-  Skybox.objects[0].draw()  ;
+  Skybox.objects[0].draw();
   textureSky.unbind();
   glPopMatrix();
   glPushMatrix(); // IDENTITY IDENTITY
   glLoadIdentity();
-//  free_camera_lookat();
+  free_camera_lookat();
   if(cockpit){
       cockpit_direction.normalize();
       lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
         cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
         0,1,0);
-      printmodelview();
         // cout << cockpit_view[0] + cockpit_direction.x() << " " << cockpit_view[1] + cockpit_direction.y() << " "
         // << cockpit_view[2] + cockpit_direction.z() << endl;
 
         // cout << cockpit_view[0] << " " << cockpit_view[1] << " "
         // << cockpit_view[2] << endl;
 
+        cockpit_direction.x() = 0;
+        cockpit_direction.y() = 0;
+        cockpit_direction.z() = -1;
   }
 
   //    ##################AXES##################

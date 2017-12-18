@@ -211,7 +211,7 @@ void rotatePointZ(Point3d *p, float alpha){
 void printmodelview(){
   GLfloat matrix[16];
   glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
-  for(int i=0; i < 16; i++){
+  for(int i=12; i < 15; i++){
     cout<< matrix[i] << " ";
   }
   cout << "\n----------------" << endl;
