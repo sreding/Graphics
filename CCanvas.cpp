@@ -81,7 +81,7 @@ bool CCanvas::event(QEvent *event){
         delta_defined = true;
         lastPos.x() = me->x();
         lastPos.y() = me->y();
-      }else{
+      }else if(cockpit){
         float speed = 0.1;
         float dx = me->x() - lastPos.x();
         rotatePointY(&cockpit_direction,-dx*speed);
@@ -89,6 +89,14 @@ bool CCanvas::event(QEvent *event){
         rotatePointX(&cockpit_direction,-dy*speed);
         lastPos.x()=me->x();
         lastPos.y()=me->y();
+      }else{
+          float speed = 0.1;
+          float dx = me->x() - lastPos.x();
+          rotatePointY(&camera_direction,-dx*speed);
+          float dy = me->y() - lastPos.y();
+          rotatePointX(&camera_direction,-dy*speed);
+          lastPos.x()=me->x();
+          lastPos.y()=me->y();
       }
       break;
     }
@@ -480,6 +488,7 @@ void updatemodelview(float mod[]){
 void CCanvas::paintGL()
 {
   initpaintgl();
+  if(!cockpit){
   glPushMatrix();
   glLoadIdentity();
   textureSky.bind();
@@ -488,9 +497,11 @@ void CCanvas::paintGL()
   Skybox.objects[0].draw();
   textureSky.unbind();
   glPopMatrix();
+  }
   glPushMatrix(); // IDENTITY IDENTITY
   glLoadIdentity();
-//  free_camera_lookat();
+  if(!cockpit)
+    free_camera_lookat();
 //  if(cockpit){
 //      cockpit_direction.normalize();
 //      lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
@@ -516,23 +527,33 @@ void CCanvas::paintGL()
   // ##################AIRPLANE##################
   setplanematerial();
 
-  texturePlane.bind();
+
   setView(View::Main_Body);
   float model[16];
   glGetFloatv (GL_MODELVIEW, model);
   updatemodelview(model);
 
-  glPopMatrix();
-  cockpit_direction.normalize();
-  glLoadIdentity();
+
   if(cockpit){
+      glLoadIdentity();
+      textureSky.bind();
+      lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
+        cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
+        0,1,0);
+      glScalef(100,100,100);
+      Skybox.objects[0].draw();
+      textureSky.unbind();
+      glPopMatrix();
+      cockpit_direction.normalize();
+      glLoadIdentity();
     lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
       cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
       0,1,0);
+    setView(View::Axis);
+    glPushMatrix();
+    setView(View::Main_Body_inv);
   }
-  setView(View::Axis);
-  glPushMatrix();
-  setView(View::Main_Body_inv);
+  texturePlane.bind();
   plane.objects[0].draw();
   glPushMatrix(); // IDENTITY AXIS MAIN_BODY MAIN_BODY
 //  if(!updateinaxis){
