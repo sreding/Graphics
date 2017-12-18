@@ -525,9 +525,11 @@ void CCanvas::paintGL()
   glPopMatrix();
   cockpit_direction.normalize();
   glLoadIdentity();
-  lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
-    cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
-    0,1,0);
+  if(cockpit){
+    lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
+      cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
+      0,1,0);
+  }
   setView(View::Axis);
   glPushMatrix();
   setView(View::Main_Body_inv);
