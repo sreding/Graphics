@@ -28,8 +28,10 @@ void CCanvas::initializeGL(){
   textureWater.setTexture();
   textureLane.setTexture();
   textureTree.setTexture();
+  textureSky.setTexture();
   loadOBJ(pathToFile[0],scene);
   loadOBJ(pathToFile[1],plane);
+  loadOBJ(pathToFile[2],Skybox);
   camView = Still;
   grabKeyboard();
 }
@@ -69,13 +71,13 @@ bool CCanvas::event(QEvent *event){
         lastPos.x() = me->x();
         lastPos.y() = me->y();
       }else{
-        float speed = 0.005;
+        float speed = 0.1;
         float dx = me->x() - lastPos.x();
-        //            camera_direction.x() += dx*speed;
         rotatePointY(&camera_direction,-dx*speed);
         float dy = me->y() - lastPos.y();
         rotatePointX(&camera_direction,-dy*speed);
-        //            camera_direction.y() -= dy*speed;
+        lastPos.x()=me->x();
+        lastPos.y()=me->y();
       }
       break;
     }
@@ -319,6 +321,15 @@ void updatemodelview(float mod[]){
 void CCanvas::paintGL()
 {
   initpaintgl();
+  rotatePointY(&camera_direction,10);
+  glPushMatrix();
+  glLoadIdentity();
+  textureSky.bind();
+  free_camera_lookat();
+  glScalef(100,100,100);
+  Skybox.objects[0].draw();
+  textureSky.unbind();
+  glPopMatrix();
   glPushMatrix(); // IDENTITY IDENTITY
   glLoadIdentity();
   free_camera_lookat();

@@ -38,14 +38,15 @@ public:
         textureMountain(readfile()),
         textureWater(readfile()),
         textureLane(readfile()),
-        textureTree(readfile())
+        textureTree(readfile()),
+        textureSky(readfile())
     {
         QTimer *timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(updateGL()));
         timer->start(10);
         pathToFile[0]= readfile(); // scene
         pathToFile[1] = readfile(); // plane
-//        pathToFile[2] = readfile();
+        pathToFile[2] = readfile(); //skybox
     }
     bool event(QEvent *event);
     enum CamView {
@@ -120,7 +121,7 @@ private:
     void setView(View _view);
 
     // Models and textures
-    Texture texturePlane,textureGrass,textureMountain,textureWater,textureLane, textureTree;
+    Texture texturePlane,textureGrass,textureMountain,textureWater,textureLane, textureTree,textureSky;
 
 
 };
