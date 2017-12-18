@@ -186,7 +186,7 @@ void CCanvas::setView(View _view) {
     case Land:
       glTranslatef(x,y, z); // put in the axis
       glRotated(270, 0.0,1.0,0.0);
-      glRotated(180,0.0,1.0,0.0);
+//      glRotated(180,0.0,1.0,0.0);
       glRotatef(curve*4.5,0.0,0.0,1.0);
       glRotated(15, 1.0,0.0,0.0);
       break;
@@ -288,6 +288,24 @@ void CCanvas::setView(View _view) {
           if(y <= 0.2){
             acc = 0.01;
             y = 0.2;
+            tookoff =false;
+
+            x = -4.5;
+           y = 0.1;
+            z = 0.0;
+            acc = 0.01;
+            radius = 3.0;
+            centerx = 0.0;
+            centerz = 0.0;
+            curve = 0.2;
+            angle = 0.0;
+           reached_max = false;
+            check = true;
+        plane_state = 0;
+            time_t begin_t = 0;
+            if(begin_t == 0){
+              begin_t = time(NULL);
+            }
 
             plane_state=0;
           }else{
@@ -296,7 +314,7 @@ void CCanvas::setView(View _view) {
           }
           glTranslatef(x,y, z); // put in the axis
           glRotated(270, 0.0,1.0,0.0);
-          glRotated(180,0.0,1.0,0.0);
+//          glRotated(180,0.0,1.0,0.0);
           glRotatef(curve*4.5,0.0,0.0,1.0);
           glRotated(15, 1.0,0.0,0.0);
           break;
