@@ -65,7 +65,8 @@ bool CCanvas::event(QEvent *event){
         }else if(ke->key() == Qt::Key_Q ){
           camera_position[1]+=0.2;
         }else if(ke->key() == Qt::Key_Z ){
-          camera_position[1]-=0.2;
+          if(camera_position[1] > 0)
+            camera_position[1]-=0.2;
         }else if(ke->key() == Qt::Key_Up || ke->key() == Qt::Key_W ){
           camera_position += camera_direction.normalized()*moveSpeed;
         }else if(ke->key() == Qt::Key_Down || ke->key() == Qt::Key_S ){
@@ -179,7 +180,7 @@ void CCanvas::setView(View _view) {
       glRotated(270, 0.0,1.0,0.0);
       glRotated(180,0.0,1.0,0.0);
       glRotatef(curve*4.5,0.0,0.0,1.0);
-      glRotated(15, 1.0,0.0,0.0);
+      // glRotated(15, 1.0,0.0,0.0);
 
       break;
     }
@@ -195,7 +196,7 @@ void CCanvas::setView(View _view) {
       glRotated(270, 0.0,1.0,0.0);
       glRotated(angle *36,0.0,1.0,0.0);
       glRotatef(curve*4.5,0.0,0.0,1.0);
-      glRotated(15, 1.0,0.0,0.0);
+      // glRotated(15, 1.0,0.0,0.0);
     break;
 
     case Circle:
@@ -203,7 +204,7 @@ void CCanvas::setView(View _view) {
       glRotated(270, 0.0,1.0,0.0);
       glRotated(angle *36,0.0,1.0,0.0);
       glRotatef(curve*4.5,0.0,0.0,1.0);
-      glRotated(15, 1.0,0.0,0.0);
+      // glRotated(15, 1.0,0.0,0.0);
       break;
     case Right:
     // cout << "RIGHT" << endl;
@@ -238,6 +239,8 @@ void CCanvas::setView(View _view) {
               yy = max((x+acc) * (x+acc) * 0.05, 0.2);
             }
           }
+          x+=acc;
+          acc*=1.0075;
           // updateinaxis = false;
           glPushMatrix();
           glTranslatef(x+acc, yy, z);
@@ -256,8 +259,7 @@ void CCanvas::setView(View _view) {
           // cout << cockpit_direction.x() << " " << cockpit_direction.y() << " "  << cockpit_direction.z() << endl;
           glRotatef( 15, 1.0,0.0,0.0);
           // rotatePointY(&cockpit_direction, rotate_show);
-          x+=acc;
-          acc*=1.0075;
+
           break;
         }
         case Straight:{
@@ -274,7 +276,7 @@ void CCanvas::setView(View _view) {
           glRotated(270, 0.0,1.0,0.0);
           glRotated(180,0.0,1.0,0.0);
           glRotatef(curve*4.5,0.0,0.0,1.0);
-          glRotated(15, 1.0,0.0,0.0);
+          // glRotated(15, 1.0,0.0,0.0);
 
           break;
         }
@@ -319,7 +321,7 @@ void CCanvas::setView(View _view) {
           glRotated(270, 0.0,1.0,0.0);
 //          glRotated(180,0.0,1.0,0.0);
           glRotatef(curve*4.5,0.0,0.0,1.0);
-          glRotated(15, 1.0,0.0,0.0);
+          // glRotated(15, 1.0,0.0,0.0);
           break;
         case Left:
           if(check){
@@ -353,7 +355,7 @@ void CCanvas::setView(View _view) {
           glRotated(270, 0.0,1.0,0.0);
           glRotated(angle *36,0.0,1.0,0.0);
           glRotatef(curve*4.5,0.0,0.0,1.0);
-          glRotated(15, 1.0,0.0,0.0);
+          // glRotated(15, 1.0,0.0,0.0);
         break;
 
         case Circle:
@@ -391,7 +393,7 @@ void CCanvas::setView(View _view) {
           glRotated(270, 0.0,1.0,0.0);
           glRotated(angle *36,0.0,1.0,0.0);
           glRotatef(curve*4.5,0.0,0.0,1.0);
-          glRotated(15, 1.0,0.0,0.0);
+          // glRotated(15, 1.0,0.0,0.0);
 
           // rotatePointY(&cockpit_direction, angle *36);
           // rotatePointZ(&cockpit_direction, curve*4.5);
