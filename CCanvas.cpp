@@ -261,10 +261,10 @@ void CCanvas::setView(View _view) {
           break;
         }
         case Straight:{
-          if(x < -5.5){
+          if(x < -7.5){
             plane_state = 5;
           }
-          x -= 0.02;
+          x -= 0.04;
 
           if(curve > 0.0){
               curve -= 0.2;
@@ -283,15 +283,18 @@ void CCanvas::setView(View _view) {
               tookoff = false;
           }
 //          y -= 0.01;
-          x += 0.01;
-          acc *=0.9025;
+          x += 0.02;
+//          acc *=0.9025;
+          if(z < 0.0){
+            z += 0.001;
+          }
           if(y <= 0.2){
             acc = 0.01;
             y = 0.2;
             tookoff =false;
 
-            x = -4.5;
-           y = 0.1;
+//            x = -4.5;
+            y = 0.1;
             z = 0.0;
             acc = 0.01;
             radius = 3.0;
@@ -299,9 +302,9 @@ void CCanvas::setView(View _view) {
             centerz = 0.0;
             curve = 0.2;
             angle = 0.0;
-           reached_max = false;
+            reached_max = false;
             check = true;
-        plane_state = 0;
+            plane_state = 0;
             time_t begin_t = 0;
             if(begin_t == 0){
               begin_t = time(NULL);
@@ -393,8 +396,8 @@ void CCanvas::setView(View _view) {
           // rotatePointY(&cockpit_direction, angle *36);
           // rotatePointZ(&cockpit_direction, curve*4.5);
           // rotatePointY(&cockpit_direction, 270 + angle *36);
-          if((time(NULL) - begin_t > 15) && angle < 15.1 && angle > 14.9){
-//                cout << "Angle: "<< angle << endl;
+          if((time(NULL) - begin_t > 15) && angle > 14.99){
+
                 check = true;
                 plane_state = 1;
           }
