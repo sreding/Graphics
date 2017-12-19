@@ -189,15 +189,15 @@ void CCanvas::setView(View _view) {
       glTranslatef(x,y, z); // put in the axis
       glRotated(270, 0.0,1.0,0.0);
 //      glRotated(180,0.0,1.0,0.0);
-//      glRotatef(curve*4.5,0.0,0.0,1.0);
-      glRotated(curve, 1.0,0.0,0.0);
+      glRotatef(curve*4.5,0.0,0.0,1.0);
+      glRotated(15, 1.0,0.0,0.0);
       break;
     case Left:
       glTranslatef(x,y, z); // put in the axis
       glRotated(270, 0.0,1.0,0.0);
       glRotated(angle *36,0.0,1.0,0.0);
       glRotatef(curve*4.5,0.0,0.0,1.0);
-//       glRotated(15, 1.0,0.0,0.0);
+      // glRotated(15, 1.0,0.0,0.0);
     break;
 
     case Circle:
@@ -283,7 +283,6 @@ void CCanvas::setView(View _view) {
         }
         case Land:
           if(tookoff){
-              curve = 0.0;
               tookoff = false;
           }
 //          y -= 0.01;
@@ -292,10 +291,6 @@ void CCanvas::setView(View _view) {
           if(z < 0.0){
             z += 0.001;
           }
-          if(curve < 15.0){
-             curve += 0.1;
-          }
-
           if(y <= 0.2){
             acc = 0.01;
             y = 0.2;
@@ -326,8 +321,8 @@ void CCanvas::setView(View _view) {
           glTranslatef(x,y, z); // put in the axis
           glRotated(270, 0.0,1.0,0.0);
 //          glRotated(180,0.0,1.0,0.0);
-//          glRotatef(,0.0,0.0,1.0);
-           glRotated(curve, 1.0,0.0,0.0);
+          glRotatef(curve*4.5,0.0,0.0,1.0);
+          // glRotated(15, 1.0,0.0,0.0);
           break;
         case Left:
           if(check){
@@ -365,7 +360,7 @@ void CCanvas::setView(View _view) {
 //          cockpit_direction=Point3d(0,0,-1);
 //          rotatePointY(&cockpit_direction,angle*36);
           glRotatef(curve*4.5,0.0,0.0,1.0);
-//           glRotated(, 1.0,0.0,0.0);
+          // glRotated(15, 1.0,0.0,0.0);
         break;
 
         case Circle:
@@ -397,6 +392,7 @@ void CCanvas::setView(View _view) {
             plane_state = 0;
           }else{
             curve += 0.05;
+//            rotatePointZ(&up,0.05*4.5);
             angle += 0.016;
             rotatePointY(&cockpit_direction,0.016*36);
           }
