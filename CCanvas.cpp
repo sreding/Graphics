@@ -15,6 +15,7 @@ static bool cockpit = true;
 //-----------------------------------------------------------------------------
 Point3d camera_position(0.0f, 0.0f, 0.0f);
 Point3d camera_direction(0.0f,0.0f,-1.0f);
+Point3d up(0,1,0);
 Point2d lastPos(0.0f,0.0f);
 bool delta_defined = false;
 bool updateinaxis = true;
@@ -340,11 +341,13 @@ void CCanvas::setView(View _view) {
           if(reached_max && curve > 0.0){
             curve -= 0.05;
             angle += 0.016;
+            rotatePointY(&cockpit_direction,0.016*36);
           }else if(angle > 7.5){
             reached_max = true;
           }else{
             curve += 0.05;
             angle += 0.016;
+            rotatePointY(&cockpit_direction,0.016*36);
           }
           if(curve < 0.0){
             check = false;
@@ -354,6 +357,8 @@ void CCanvas::setView(View _view) {
           glTranslatef(x,y, z); // put in the axis
           glRotated(270, 0.0,1.0,0.0);
           glRotated(angle *36,0.0,1.0,0.0);
+//          cockpit_direction=Point3d(0,0,-1);
+//          rotatePointY(&cockpit_direction,angle*36);
           glRotatef(curve*4.5,0.0,0.0,1.0);
           // glRotated(15, 1.0,0.0,0.0);
         break;
@@ -377,6 +382,7 @@ void CCanvas::setView(View _view) {
           if(reached_max && curve > 0.0){
             // curve -=0.2;
             angle += 0.016;
+            rotatePointY(&cockpit_direction,0.016*36);
           }else if(curve > 10){
             reached_max = true;
           }else if(curve < 0.0){
@@ -387,12 +393,17 @@ void CCanvas::setView(View _view) {
           }else{
             curve += 0.05;
             angle += 0.016;
+            rotatePointY(&cockpit_direction,0.016*36);
           }
           acc += 0.01;
           glTranslatef(x,y, z); // put in the axis
           glRotated(270, 0.0,1.0,0.0);
           glRotated(angle *36,0.0,1.0,0.0);
           glRotatef(curve*4.5,0.0,0.0,1.0);
+//          up=Point3d(0,1,0);
+//          cockpit_direction=Point3d(0,0,-1);
+//          rotatePointZ(&up,-curve*4.5);
+//          rotatePointY(&cockpit_direction,angle*36);
           // glRotated(15, 1.0,0.0,0.0);
 
           // rotatePointY(&cockpit_direction, angle *36);
@@ -555,14 +566,12 @@ void CCanvas::paintGL()
   float model[16];
   glGetFloatv (GL_MODELVIEW, model);
   updatemodelview(model);
-
-
   if(cockpit){
       glLoadIdentity();
       textureSky.bind();
       lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
         cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
-        0,1,0);
+        up[0],up[1],up[2]);
       glScalef(100,100,100);
       Skybox.objects[0].draw();
       textureSky.unbind();
@@ -571,7 +580,7 @@ void CCanvas::paintGL()
       glLoadIdentity();
     lookAt(cockpit_view[0], cockpit_view[1], cockpit_view[2],
       cockpit_view[0] + cockpit_direction.x(), cockpit_view[1] + cockpit_direction.y(), cockpit_view[2] + cockpit_direction.z(),
-      0,1,0);
+      up[0],up[1],up[2]);
     setView(View::Axis);
     glPushMatrix();
     setView(View::Main_Body_inv);
